@@ -1,0 +1,76 @@
+<div class="row border-bottom">
+    <div class="col-10 ">
+        <ul class="h-100 w-100 nav nav-tabs d-flex align-items-center justify-content-center">
+            <div class="row w-100 p-0 m-0">
+                <div class="col">
+                    <li  class="nav-item">
+                        <a class="nav-link btn btn-outline-warning" href="{% url 'abm:user_list' %}" id="user_list">
+                            Usuarios
+                        </a>
+                    </li>
+                </div>
+                <div class="col">
+                    <li  class="nav-item">
+                        <a class="nav-link btn btn-outline-warning" href="{% url 'abm:customer_list' %}" id="cliente_list">
+                            Clientes
+                        </a>
+                    </li>
+                </div>
+                <div class="col">
+                    <li  class="nav-item">
+                        <a class="nav-link btn btn-outline-warning" href="{% url 'gestionVentas:sales_list' %}" id="ventas">
+                            Ventas
+                        </a>
+                    </li>
+                </div>
+                <div class="col">                        
+                    <li  class="nav-item">
+                        <a class="nav-link btn btn-outline-warning" href="{% url 'gestionVentas:product_list' %}" id="product_list">
+                            Productos
+                        </a>
+                    </li>
+                </div>
+                <div class="col">                        
+                    <li  class="nav-item">
+                        <a class="nav-link btn btn-outline-warning" href="{% url 'gestionVentas:home' %}" id="Cotizaciones">
+                            Home Page
+                        </a>
+                    </li>
+                </div>
+            </div>
+        </ul>
+    </div>
+    <div class="col-2 border-bottom">
+        <div class="container py-3" style="min-height: 100px;">
+            <div class="row py-1">                
+                <div class="col d-flex justify-content-center align-items-center text-white font-weight-bold px-3"> 
+                    <i class="fa fa-user" style="font-size:24px"></i> 
+                    <span class="text-white px-1"> {{ user.username }} </span>
+                </div>
+            </div>
+            <div class="row"> 
+                <div class="col d-flex justify-content-center p-0 m-0">
+                    <form id="logout-form" method="POST" action="" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary" style="width: fit-content;">
+                            Salir
+                        </button>
+                    </form>
+                </div>               
+            </div>
+        </div>
+    </div>
+</div>
+        
+{% block js %}
+    <script>
+        $(document).ready(function (){
+            var ref = document.querySelector('.referencia')
+            if ( ref != null ) {
+                const r = ref.getAttribute('data-ref')
+                const l = document.querySelector(`#${r}`)
+                l.classList.add('active')
+            }
+        })
+    </script>
+{% endblock js %}

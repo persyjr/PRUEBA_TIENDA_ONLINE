@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Ventas{% endblock %}
+<body>
+{% block content %}
+{% include 'components/header.html' with titulo='Clientes' %}
+  <span class="referencia" data-ref="cliente_list"></span>
+  <div class="card px-4 py-5">    
+    <div class="card-heder d-flex justify-content-end"> 
+      <div class="pr-3">      
+        <button class="btn btn-info text-white ml-2" type="button" data-target="#js-modal-3" data-toggle="modal"
+              data-action="Registrar Cliente" data-title="Crear Cliente" data-width="modal-lg"
+              data-url="{% url 'abm:add_customer' %}">
+              Registrar Cliente
+          </button>
+      </div>
+    </div>
+    <div class="card-body text-white">       
+        <span id="selected-rows"></span>
+        <div class="table-responsive px-2">
+        <table id="Table" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center"><input type="checkbox" class="selectAll" name="selectAll" value="all"></th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Telefono</th>
+            <th>Dirección</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tfoot class="thead-light">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Telefono</th>
+            <th>Dirección</th>
+            <th style="width: 200px;">Acciones</th>
+          </tr>
+        </tfoot>
+        <tbody data-toggle="tooltip" data-selector=".has-tooltip"></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+{% block css %}
+{% endblock css %}
+{% block js %}
+{% include "components/js_modal.html"  %}
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js" integrity="sha384-q/gioCoyP7Ot1cPl/TUoiZVdDMOM5ETruQZ2N9viR6yHJdbA1UQTX5LUfFzhbRXC" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" 
+    integrity="sha384-GnF+B7IPjgq2orAiXXyQbAE1gEkYZrXQ094h+jt4M8SRBMQY+6MADLdrX70rLoeJ" 
+    crossorigin="anonymous"></script>
+
+<script> 
+$(document).ready(function (){
+           const table = $('#Table').DataTable({
+               rowId: 'id',
+               //responsive: true,
+               ordering: false,
+               processing: true,
+               serverSide: true,
+               lengthChange: false,
+               infoCallback: function( settings, start, end, max, total, pre, page ) {
+                   num = end-start;
+                   console.log(num)
+                   console.log(total)
+                   if (total == 0) return "Sin resultados";
+                   return 'Mostrando '+ (num+1) + " de " + total + " resultados";
+               },
+               "language": {
+                   "processing": "Buscando...",
+                   "search": "Buscar:",
+                   "paginate": {
+                       "first":      "<<",
+                        "last":       ">>",
+                        "next":       ">",
+                        "previous":   "<"
+                   },
+                   "infoEmpty":"Mostrando 0 to 0 of 0 resultados",
+               },
+               ajax: {
+                   url: '{% url "abm:customers_list_api" %}',
+                   data : function(d){
+                            
+                   },
+               },
+               columns: [
+                   { data: 'id',
+                       orderable: false,
+                       className: 'select-checkbox',
+                       
+                   },
+                   { data: 'nombre' },
+                   { data: 'email' },
+                   { data: 'telefono' },
+                   { data: 'direccion' },
+                   {
+                       data: 'id',
+                       
+                       render: function(data, type, row, meta) {
+                           const urlEdit = "{% url 'abm:update_customer' 0 %}".replace(0, data);
+                           const urldelete = "{% url 'abm:delete_customer_view' 0 %}".replace(0, data);
+                           const urldetalle = "".replace(0, data);
+                           const nombre = row['nombre']
+                           console.log(nombre)
+                           const buttonDetalle = `
+                           
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-primary has-tooltip edit_btn text-white"
+                                   data-toggle="modal" data-target="#js-modal-3" data-title="Editar datos de  ${nombre}"
+                                   data-width="modal-lg" data-placement="right"
+                                   data-url="${urlEdit}" title="Editar Cliente">
+                                   <i class="fas fa-pen"></i>
+                               </a>
+                               
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-success has-tooltip edit_btn text-white"
+                                    href="${urldetalle}" "
+                                   ">
+                                   <i class="fas fa-eye"></i>
+                               </a>
+                               
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-danger has-tooltip edit_btn text-white"
+                                   data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Cliente ${nombre}"
+                                   data-width="modal-md" data-placement="right"
+                                   data-url="${urldelete}" title="Eliminar Cliente">
+                                   <i class="fas fa-trash"></i>
+                               </a>
+                               
+                           `
+                           return`
+                               ${buttonDetalle}
+                           `;
+                       }
+                   }
+               ],
+               select: {
+                   info: false,
+                   style: 'multi',
+                   selector: 'td:first-child'
+               },
+           });
+           
+           let selected = [];
+            const selectAll = document.querySelector('.selectAll');
+            const updateSelectedInfo = () => {
+                document.getElementById('selected-rows').innerHTML = `${removeDuplicates(selected).length} filas seleccionadas`;
+            };
+
+            selectAll.addEventListener('click', ({ target }) => {
+                if (target.checked) {
+                    table.rows({ page: 'current' }).select();
+                    selected.push(...table.rows({ selected: true }).data().map(d => d.id).toArray());
+                } else {
+                    table.rows({ page: 'current' }).deselect();
+                    selected = removeItems(selected, table.rows({ page: 'current' }).data().map(d => d.id).toArray());
+                }
+                updateSelectedInfo();
+            });
+
+            const setSelectAllState = () => {
+                selectAll.checked = table.rows({ page: 'current' }).ids().length === table.rows({ page: 'current', selected: true }).ids().length;
+            }
+
+            table.on('page.dt', function () {
+                setSelectAllState();
+            });
+
+            table.on('draw', function () {
+                table.rows((idx, data, node) => selected.includes(data.ceco)).select();
+                
+            });
+
+            table.on('select', function (e, dt, type, indexes) {
+                selected.push(table.rows(indexes).data()[0].id);
+                setSelectAllState();
+                updateSelectedInfo();
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                selected.splice(selected.indexOf(table.rows(indexes).data()[0].id), 1);
+                setSelectAllState();
+                updateSelectedInfo();
+            });
+        })
+</script>
+{% endblock js %}  

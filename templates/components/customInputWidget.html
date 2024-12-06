@@ -1,0 +1,12 @@
+<wm-image-field
+  name="{{ name }}" 
+  label="{{ label }}"
+  class="{{ className }}" 
+  {{ noaplica }}
+  {{ cleareable }}
+  {{ allowFiles }}
+  {{ required }}
+  {% if value %}
+  value='{"name": "{{ value.name }}", "url": "{{ value.url }}"}'
+  {% endif %}>
+</wm-image-field>

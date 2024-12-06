@@ -1,0 +1,27 @@
+{% load crispy_forms_tags %}
+{% include "components/non_field_errors.html" %}
+<body class="bg-white">
+    <label for="fecha" class="font-weight-bold text-info h4 form-label">
+        <strong>
+            <div class=" pl-2 d-inline fw-bolder">Actualizar Cliente</div>
+        </strong>
+    </label>
+    <form class="bg-white" action="{% url 'abm:update_customer' object.id %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
+    
+        {{ form.nombre|as_crispy_field }}   
+        {{ form.email|as_crispy_field }}
+        {{ form.telefono|as_crispy_field }}
+        {{ form.direccion|as_crispy_field }}
+    
+         
+    <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
+    </form> 
+</body>
+<script>
+// Reload page
+/*
+$("#js-modal-3").on("hidden.bs.modal", function () {
+    window.location.reload()
+});    
+*/
+</script>

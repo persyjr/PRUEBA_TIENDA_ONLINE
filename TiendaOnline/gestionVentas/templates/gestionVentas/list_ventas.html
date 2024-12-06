@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Ventas{% endblock %}
+<body>
+{% block content %}
+{% include 'components/header.html' with titulo='Ventas' %}
+  <span class="referencia" data-ref="ventas"></span>
+  <div class="card px-4 py-5">    
+    <div class="card-heder d-flex justify-content-end"> 
+      <div class="pr-3">      
+        <button class="btn btn-info text-white ml-2" type="button" data-target="#js-modal-3" data-toggle="modal"
+              data-action="Crear Orden" data-title="Crear OT" data-width="modal-lg"
+              data-url="">
+              Registrar Venta
+          </button>
+          <a href="" class="btn btn-primary btn-md"
+              type="button">Descargar Reporte
+          </a>
+      </div>
+    </div>
+    <div class="card-body text-white">       
+        <span id="selected-rows"></span>
+        <div class="table-responsive px-2">
+        <table id="otsTable" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center"><input type="checkbox" class="selectAll" name="selectAll" value="all"></th>
+            <th>Estado</th>
+            <th>Consecutivo</th>
+            <th>Fecha Creación</th>
+            <th>Cliente</th>
+            <th>Sitio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tfoot class="thead-light">
+          <tr>
+            <th>ID</th>
+            <th>Estado</th>
+            <th>Consecutivo</th>
+            <th>Fecha Creación</th>
+            <th>Cliente</th>
+            <th>Sitio</th>
+            <th style="width: 200px;">Acciones</th>
+          </tr>
+        </tfoot>
+        <tbody data-toggle="tooltip" data-selector=".has-tooltip"></tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+{% block css %}
+{% endblock css %}
+{% block js %}
+{% include "components/js_modal.html"  %}
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js" integrity="sha384-q/gioCoyP7Ot1cPl/TUoiZVdDMOM5ETruQZ2N9viR6yHJdbA1UQTX5LUfFzhbRXC" crossorigin="anonymous"></script>
+<script type="module" src="{% static 'js/components/wm-image-field-docs.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" 
+    integrity="sha384-GnF+B7IPjgq2orAiXXyQbAE1gEkYZrXQ094h+jt4M8SRBMQY+6MADLdrX70rLoeJ" 
+    crossorigin="anonymous"></script>
+
+<script> 
+$(document).ready(function (){
+            $(document).ready(function (){
+                $('.basicAutoSelect').autoComplete({
+                    resolverSettings: {
+                        queryKey: 'search[value]',
+                    },
+                    minLength: 3,
+                });
+            })
+        
+           let toolname = null;
+           const table = $('#otsTable').DataTable({
+               rowId: 'id',
+               //responsive: true,
+               ordering: false,
+               processing: true,
+               serverSide: true,
+               lengthChange: false,
+               infoCallback: function( settings, start, end, max, total, pre, page ) {
+                   num = end-start;
+                   if (total == 0) return "Sin resultados";
+                   return 'Mostrando '+ (num+1) + " de " + total + " resultados";
+               },
+               "language": {
+                   "processing": "Buscando...",
+                   "search": "Buscar:",
+                   "paginate": {
+                       "first":      "<<",
+                        "last":       ">>",
+                        "next":       ">",
+                        "previous":   "<"
+                   },
+                   "infoEmpty":      "Mostrando 0 to 0 of 0 resultados",
+               },
+               ajax: {
+                   url: '{% url "gestionVentas:sales_list_api" %}',
+                   data : function(d){
+                       
+                       const elem = document.getElementById('cliente-filter');
+                       if (elem.value) {
+                           d.cliente = elem.value;
+                       }
+                       
+                       const elem2 = document.getElementById('condicion-filter');
+                       if (elem2.value) {
+                           d.condicion = elem2.value;
+                       }
+
+                        const fecha_creacion = document.getElementById('fecha_creacion_rango')
+                        if ( fecha_creacion.value ) {
+                                d.fecha_creacion = fecha_creacion.value
+                        }
+
+                        const fecha_cierre = document.getElementById('fecha_cierre_rango')
+                        if ( fecha_cierre.value ) {
+                                d.fecha_cierre = fecha_cierre.value
+                        }
+                            
+                   },
+               },
+               columns: [
+                   { data: 'id',
+                       orderable: false,
+                       className: 'select-checkbox',
+                       
+                   },
+                   { data: 'estado' },
+                   {data: 'consecutivo' },
+                   { data: 'fecha_creacion' },
+                   { data: 'cliente' },
+                   { data: 'sitio' },
+                   {
+                       data: 'id',
+                       
+                       render: function(data, type, row, meta) {
+                           const urlEditTool = "".replace(0, data);
+                           const deleteTool = "".replace(0, data);
+                           const detalleTool = "".replace(0, data);
+                           const nombre = row['nombre']
+                           const buttonDetalleUsuario = `
+                           {% if perms.mantenimiento.can_editar_orden_trabajo %}
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-primary has-tooltip edit_btn text-white"
+                                   data-toggle="modal" data-target="#js-modal-3" data-title="Editar herramienta '${nombre}'"
+                                   data-width="modal-lg" data-placement="right"
+                                   data-url="${urlEditTool}" title="Editar Herramienta">
+                                   <i class="fas fa-pen"></i>
+                               </a>
+                               {% endif %}
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-success has-tooltip edit_btn text-white"
+                                    href="${detalleTool}" "
+                                   ">
+                                   <i class="fas fa-eye"></i>
+                               </a>
+                               {% if perms.mantenimiento.can_editar_orden_trabajo %}
+                               <a class="btn rounded-circle btn-icon btn-datatable btn-danger has-tooltip edit_btn text-white"
+                                   data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Herramienta '${nombre}'"
+                                   data-width="modal-md" data-placement="right"
+                                   data-url="${deleteTool}" title="Eliminar Herramienta">
+                                   <i class="fas fa-trash"></i>
+                               </a>
+                               {% endif %}
+                           `
+                           return`
+                               ${buttonDetalleUsuario}
+                           `;
+                       }
+                   }
+               ],
+               select: {
+                   info: false,
+                   style: 'multi',
+                   selector: 'td:first-child'
+               },
+           });
+
+           let selected = [];
+            const selectAll = document.querySelector('.selectAll');
+            const updateSelectedInfo = () => {
+                document.getElementById('selected-rows').innerHTML = `${removeDuplicates(selected).length} filas seleccionadas`;
+            };
+
+            selectAll.addEventListener('click', ({ target }) => {
+                if (target.checked) {
+                    table.rows({ page: 'current' }).select();
+                    selected.push(...table.rows({ selected: true }).data().map(d => d.id).toArray());
+                } else {
+                    table.rows({ page: 'current' }).deselect();
+                    selected = removeItems(selected, table.rows({ page: 'current' }).data().map(d => d.id).toArray());
+                }
+                updateSelectedInfo();
+            });
+
+            const setSelectAllState = () => {
+                selectAll.checked = table.rows({ page: 'current' }).ids().length === table.rows({ page: 'current', selected: true }).ids().length;
+            }
+
+            table.on('page.dt', function () {
+                setSelectAllState();
+            });
+
+            table.on('draw', function () {
+                table.rows((idx, data, node) => selected.includes(data.ceco)).select();
+                
+            });
+
+            table.on('select', function (e, dt, type, indexes) {
+                selected.push(table.rows(indexes).data()[0].id);
+                setSelectAllState();
+                updateSelectedInfo();
+            });
+
+            table.on('deselect', function (e, dt, type, indexes) {
+                selected.splice(selected.indexOf(table.rows(indexes).data()[0].id), 1);
+                setSelectAllState();
+                updateSelectedInfo();
+            });
+            
+
+            // filtro fecha creacion OT
+            const today = luxon.DateTime.now();
+            const finDefaultDate = today.startOf('week').minus({ day: 1 }).toJSDate();
+            const initDefaultDate = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
+
+            /* Input fecha creacion OT */
+            const dateRange = new Litepicker({
+                element: document.getElementById('fecha_creacion_rango'),
+                lang: 'es-CO',
+                singleMode: false,
+                numberOfMonths: 2,
+                numberOfColumns: 2,
+                format: 'YYYY/MM/DD',
+                plugins: ['ranges'],
+                ranges: {
+                    customRanges: {
+                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
+                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
+                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
+                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
+                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
+                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
+                    }
+                }
+            }).on('selected', (date, calendarIdx) => {
+                table.draw();
+            });
+
+            /* clean input fecha creacion OT */
+            const clean_input_fecha_inicio_contrato = document.getElementById('clean_fecha_creacion_rango')
+            clean_input_fecha_inicio_contrato.addEventListener('click', function () {
+                document.getElementById('fecha_creacion_rango').value = '';
+                table.draw();
+            })
+
+            // filtro fecha cierre OT
+            // const today_cierre_ot = luxon.DateTime.now();
+            // const finDefaultDateCierre = today.startOf('week').minus({ day: 1 }).toJSDate();
+            // const initDefaultDateCierre = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
+
+            /* Input fecha cierre OT */
+            const dateRangeCierreOT = new Litepicker({
+                element: document.getElementById('fecha_cierre_rango'),
+                lang: 'es-CO',
+                singleMode: false,
+                numberOfMonths: 2,
+                numberOfColumns: 2,
+                format: 'YYYY/MM/DD',
+                plugins: ['ranges'],
+                ranges: {
+                    customRanges: {
+                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
+                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
+                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
+                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
+                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
+                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
+                    }
+                }
+            }).on('selected', (date, calendarIdx) => {
+                table.draw();
+            });
+
+            /* clean input fecha inicio contrato */
+            const clean_input_fecha_cierre_ot = document.getElementById('clean_fecha_cierre_rango')
+            clean_input_fecha_cierre_ot.addEventListener('click', function () {
+                document.getElementById('fecha_cierre_rango').value = '';
+                table.draw();
+            })
+
+
+            /* Filtro Cliente */
+            const select_cliente = document.querySelector('#cliente-filter')
+            select_cliente.addEventListener('change', function (event) {
+                table.draw();
+            })
+
+            /* Filtro Condición */
+            const select_condicion = document.querySelector('#condicion-filter')
+            select_condicion.addEventListener('change', function (event) {
+                table.draw();
+            })
+        })
+</script>
+{% endblock js %}  

@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+{% include "components/non_field_errors.html" %}
+<body class="bg-white">
+    <div class=" d-flex justify-content-center ">
+        <label for="fecha" class="font-weight-bold text-info h4 form-label">
+            <strong>
+                <div class=" pl-2 d-inline fw-bolder">Registro Producto</div>
+            </strong>
+        </label>
+    </div>
+    <form class="bg-white" action="{% url 'gestionVentas:add_product' %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
+    
+    {{ form.nombre|as_crispy_field }}   
+    {{ form.codigo|as_crispy_field }}
+    {{ form.valor_venta|as_crispy_field }}
+    {{ form.tiene_iva|as_crispy_field }}
+    <div id="agregar_porcentaje" style="display: none;" class="p-0 m-0">
+        {{ form.porcentaje_iva|as_crispy_field }}
+    </div>
+    {{ form.imagen|as_crispy_field }}
+    <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
+    </form> 
+</body>
+<script>
+    let all_procedimientos = document.getElementById('id_tiene_iva')
+    function adicionales(){
+    let check_iva = document.getElementById('id_tiene_iva')
+    let div_porcentaje = document.getElementById('agregar_porcentaje')
+    check_iva.addEventListener('change', function(){
+    
+    console.log(this.value)
+    if(this.value=='true'){
+        div_porcentaje.style.display='block'
+        check_iva.required=true
+    }else{
+        div_porcentaje.style.display='none'
+        check_iva.required=false
+    }
+    console.log(check_iva)
+    })   
+    
+
+}
+adicionales()
+$("#js-modal-3").on("hidden.bs.modal", function () {
+    window.location.reload()})
+</script>

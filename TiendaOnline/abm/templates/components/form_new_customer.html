@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+{% include "components/non_field_errors.html" %}
+<body class="bg-white">
+    <div class=" d-flex justify-content-center ">
+        <label for="fecha" class="font-weight-bold text-info h4 form-label">
+            <strong>
+                <div class=" pl-2 d-inline fw-bolder">Registro Cliente</div>
+            </strong>
+        </label>
+    </div>
+    <form class="bg-white" action="{% url 'abm:add_customer' %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
+    
+    {{ form.nombre|as_crispy_field }}   
+    {{ form.email|as_crispy_field }}
+    {{ form.telefono|as_crispy_field }}
+    {{ form.direccion|as_crispy_field }}
+    <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
+    </form> 
+</body>
+<script>
+
+</script>
