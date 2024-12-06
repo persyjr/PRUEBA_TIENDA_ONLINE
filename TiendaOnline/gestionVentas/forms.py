@@ -67,3 +67,28 @@ class RegistrarProductoForm(forms.ModelForm):
         
         if 'imagen-NA' in self.data:
             self.fields['imagen'].initial = 'NA.png'
+
+class NuevaVeta(forms.ModelForm):
+    class Meta:
+        model = m.Venta
+        fields = [
+            'cliente',
+            'fecha_venta',
+            ]
+        widgets = {
+                'fecha_venta': forms.DateInput(
+                    {'class': 'form control',
+                    'type': 'datetime-local',
+                    'style': 'border-style: none;'}),
+            }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cliente'].required = True
+        self.fields['cliente'].widget.attrs.update(
+            {"class": "text-info"})
+
+class ActualizarVentaForm(forms.ModelForm):
+    class Meta:
+        model = m.Venta
+        fields = ['cliente',]
+        widgets = {}

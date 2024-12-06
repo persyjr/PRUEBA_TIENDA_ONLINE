@@ -31,6 +31,7 @@ class Venta(models.Model):
     consecutivo=models.CharField(max_length=20)
     total_venta=models.FloatField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_venta = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return  f'{self.consecutivo} - {self.fecha_creacion}'
@@ -48,12 +49,17 @@ class ItemVenta(models.Model):
         related_name='venta_items',
         on_delete=models.CASCADE,
         null=True)
-    producto=models.CharField(max_length=30)
+    producto=producto=models.ForeignKey(
+        Producto, blank=True,
+        related_name='producto_items',
+        on_delete=models.CASCADE,
+        null=True)
+    cantidad=models.IntegerField(blank=True, null=True)
     valor=models.FloatField(blank=True, null=True)
     iva=models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return  f'{self.consecutivo} - {self.fecha_creacion}'
+        return  f'{self.producto} - {self.venta}'
 
     class Meta:
         verbose_name = 'Item Venta'

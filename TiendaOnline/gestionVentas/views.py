@@ -10,6 +10,9 @@ from typing import Any
 from abm import models as m_abm
 from . import models as m
 from . import forms as f
+import pytz
+# Create your views here.
+tz = pytz.timezone('America/Bogota')
 # Create your views here.
 class HomeView(  generic.TemplateView):
     template_name = 'gestionVentas/landingPage.html'
@@ -119,3 +122,168 @@ class EliminarProductoView(generic.DeleteView):
     template_name = 'components/form_delete_product.html'
     model = m.Producto
     success_url = reverse_lazy('gestionVentas:product_list')
+
+
+class RegistrarVentaView(generic.FormView):
+    # permission_required = 'mantenimiento.can_ver_solicitudes'
+    template_name = 'components/form_nueva_venta.html'
+    model = m.Venta
+    form_class = f.NuevaVeta
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+            'clientes': m_abm.Clientes.objects.all(),
+        })
+        return super().get_context_data(**kwargs)
+
+    def obtenerids(self, cadena):
+        codigos = cadena.split(",")
+        ids = []
+        for codigo in codigos:
+            try:
+                inicio = codigo.find('[')
+                fin = codigo.find(']')
+                if inicio >= 0:
+                    ids.append(codigo[inicio+1:fin])
+            except Exception as e:
+                print(e)
+                pass
+
+        return ids
+
+    def form_valid(self, form, **kwargs):
+        print(self.request.POST)
+        cliente = form.cleaned_data["cliente"]
+        fecha_venta = form.cleaned_data["fecha_venta"]
+        productos = self.request.POST['repuestos']
+        
+        venta = m.Venta.objects.create(
+            cliente=cliente,
+            fecha_venta=fecha_venta,
+        )
+        venta.save()
+        venta.consecutivo = f'SALE-{datetime.now().strftime("%Y")}-{venta.id}'
+        venta.save()
+        listaids = self.obtenerids(productos)
+        print(listaids)
+        for numid in listaids:
+            item_venta = m.ItemVenta.objects.create(
+                producto_id=numid,
+                venta_id=venta.id,)
+        item_venta.save()
+            
+        return HttpResponseRedirect(reverse_lazy(
+            'gestionVentas:sale_detail',
+            kwargs={'pk': venta.id }))
+
+    def form_invalid(self, form):
+        return JsonResponse({'status': 'error', 'errors': form.errors},
+                            status=400)
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
+class DetalleVentaView(generic.UpdateView):
+    #permission_required = 'mantenimiento.can_read_cotizacion'
+    template_name = 'gestionVentas/detalle_venta.html'
+    model = m.Venta
+    form_class = f.ActualizarVentaForm
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+            #'solicitudes': self.get_solicitudes(),
+            #'items_cotizacion': self.get_items_cotizacion(),
+            #'solicitudes_costosas': self.get_solicitudes_costosas(),
+            #'totales': self.get_totales(),
+            #'manager': self.get_manager(),
+            #'cotizaciones': self.get_cotizaciones_ot(),
+        })
+        return super().get_context_data(**kwargs)
+
+    def get_cotizaciones_ot(self):
+        orden = self.object
+        try:
+            mantenimiento = orden.mantenimiento
+            orden = mantenimiento.ordenDeTrabajo
+            mantenimientos = m.Mantenimiento.objects.filter(ordenDeTrabajo=orden)
+            cotizaciones_list = m.Cotizacion.objects.filter(mantenimiento__in=mantenimientos).order_by('id')
+        except Exception:
+            print(Exception)
+            cotizaciones_list = None
+        return cotizaciones_list
+
+    def get_manager(self):
+        #permiso = Permission.objects.get(codename='is_manager')
+        #manager = User.objects.filter(user_permissions=permiso).first()
+        return 'manager'
+
+    def get_solicitudes(self,):
+        cotizacion = self.get_object()
+        if cotizacion.mantenimiento is not None:
+            repuestos = m.Solicitud.objects.filter(mantenimiento=cotizacion.mantenimiento,estado='Aceptado').order_by('-cobro')
+        else:
+            repuestos = None
+        return repuestos
+
+    def get_solicitudes_costosas(self,):
+        solicitudes = self.get_solicitudes()
+        if solicitudes:
+            solicitudes_costosos = solicitudes.exclude(cobro=None)
+        else:
+            return None
+
+        return solicitudes_costosos[:3]
+
+    def get_items_cotizacion(self,):
+        items = m.ItemCotizacion.objects.filter(cotizacion=self.get_object())
+        return items
+
+    def get_totales(self,):
+        items = self.get_items_cotizacion()
+        repuestos = self.get_solicitudes()
+        subtotal = 0
+        if items:
+            for item in items:
+                if item.cobro:
+                    subtotal += item.cobro
+        if repuestos:
+            for item in repuestos:
+                if item.cobro:
+                    subtotal += item.cobro
+        iva = round(subtotal*0.19, 1)
+        total = round(subtotal+iva, 1)
+        subtotal = round(subtotal, 1)
+        totales = {
+            'total': total,
+            'subtotal': subtotal,
+            'iva': iva
+                 }
+        cotizacion = self.get_object()
+        cotizacion.totales = totales
+        cotizacion.save()
+
+        return totales
+
+    def form_valid(self, form):
+        id_cotizacion = self.kwargs['pk']
+        cotizacion = self.get_object()
+        cotizacion.datos_borrador_cliente = form.cleaned_data['datos_borrador_cliente']
+        cotizacion.datos_borrador_herramienta = form.cleaned_data['datos_borrador_herramienta']
+        cotizacion.save()
+        return HttpResponseRedirect(
+            reverse_lazy('mantenimiento:detalle_cotizacion_programada',
+                         kwargs={'pk': id_cotizacion}))
+
+    def form_invalid(self, form):
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

@@ -33,7 +33,6 @@ class VentaAdmin(admin.ModelAdmin):
         'cliente',
         'consecutivo',
         'total_venta',
-        'fecha_creacion',
         )
     
 @admin.register(m.ItemVenta)

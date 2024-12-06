@@ -10,8 +10,8 @@
     <div class="card-heder d-flex justify-content-end"> 
       <div class="pr-3">      
         <button class="btn btn-info text-white ml-2" type="button" data-target="#js-modal-3" data-toggle="modal"
-              data-action="Crear Orden" data-title="Crear OT" data-width="modal-lg"
-              data-url="">
+              data-action="Registrar Venta" data-title="Registrar Venta" data-width="modal-lg"
+              data-url="{% url 'gestionVentas:registrar_venta' %}">
               Registrar Venta
           </button>
           <a href="" class="btn btn-primary btn-md"
@@ -22,26 +22,24 @@
     <div class="card-body text-white">       
         <span id="selected-rows"></span>
         <div class="table-responsive px-2">
-        <table id="otsTable" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
+        <table id="Table" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
         <thead class="thead-light">
           <tr>
             <th class="text-center"><input type="checkbox" class="selectAll" name="selectAll" value="all"></th>
-            <th>Estado</th>
-            <th>Consecutivo</th>
-            <th>Fecha Creación</th>
-            <th>Cliente</th>
-            <th>Sitio</th>
+            <th>consecutivo</th>
+            <th>cliente</th>
+            <th>Creación</th>
+            <th>Total Venta</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tfoot class="thead-light">
           <tr>
             <th>ID</th>
-            <th>Estado</th>
-            <th>Consecutivo</th>
-            <th>Fecha Creación</th>
-            <th>Cliente</th>
-            <th>Sitio</th>
+            <th>consecutivo</th>
+            <th>cliente</th>
+            <th>Creación</th>
+            <th>Total Venta</th>
             <th style="width: 200px;">Acciones</th>
           </tr>
         </tfoot>
@@ -58,24 +56,14 @@
 {% include "components/js_modal.html"  %}
 <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js" integrity="sha384-q/gioCoyP7Ot1cPl/TUoiZVdDMOM5ETruQZ2N9viR6yHJdbA1UQTX5LUfFzhbRXC" crossorigin="anonymous"></script>
-<script type="module" src="{% static 'js/components/wm-image-field-docs.js' %}"></script>
+<script type="module" src="{% static 'js/components/wm-image-field.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" 
     integrity="sha384-GnF+B7IPjgq2orAiXXyQbAE1gEkYZrXQ094h+jt4M8SRBMQY+6MADLdrX70rLoeJ" 
     crossorigin="anonymous"></script>
 
 <script> 
 $(document).ready(function (){
-            $(document).ready(function (){
-                $('.basicAutoSelect').autoComplete({
-                    resolverSettings: {
-                        queryKey: 'search[value]',
-                    },
-                    minLength: 3,
-                });
-            })
-        
-           let toolname = null;
-           const table = $('#otsTable').DataTable({
+           const table = $('#Table').DataTable({
                rowId: 'id',
                //responsive: true,
                ordering: false,
@@ -84,6 +72,8 @@ $(document).ready(function (){
                lengthChange: false,
                infoCallback: function( settings, start, end, max, total, pre, page ) {
                    num = end-start;
+                   console.log(num)
+                   console.log(total)
                    if (total == 0) return "Sin resultados";
                    return 'Mostrando '+ (num+1) + " de " + total + " resultados";
                },
@@ -96,31 +86,11 @@ $(document).ready(function (){
                         "next":       ">",
                         "previous":   "<"
                    },
-                   "infoEmpty":      "Mostrando 0 to 0 of 0 resultados",
+                   "infoEmpty":"Mostrando 0 to 0 of 0 resultados",
                },
                ajax: {
                    url: '{% url "gestionVentas:sales_list_api" %}',
                    data : function(d){
-                       
-                       const elem = document.getElementById('cliente-filter');
-                       if (elem.value) {
-                           d.cliente = elem.value;
-                       }
-                       
-                       const elem2 = document.getElementById('condicion-filter');
-                       if (elem2.value) {
-                           d.condicion = elem2.value;
-                       }
-
-                        const fecha_creacion = document.getElementById('fecha_creacion_rango')
-                        if ( fecha_creacion.value ) {
-                                d.fecha_creacion = fecha_creacion.value
-                        }
-
-                        const fecha_cierre = document.getElementById('fecha_cierre_rango')
-                        if ( fecha_cierre.value ) {
-                                d.fecha_cierre = fecha_cierre.value
-                        }
                             
                    },
                },
@@ -128,46 +98,45 @@ $(document).ready(function (){
                    { data: 'id',
                        orderable: false,
                        className: 'select-checkbox',
-                       
                    },
-                   { data: 'estado' },
-                   {data: 'consecutivo' },
-                   { data: 'fecha_creacion' },
+                   { data: 'consecutivo' },
                    { data: 'cliente' },
-                   { data: 'sitio' },
+                   { data: '_fecha_creacion'},
+                   { data: 'total_venta',
+                       render: function(data, type, row, meta) {
+                        console.log(data)
+                            const precio = "$ 0 COP".replace(0, data);
+                            let buttonDetalle = `${precio}`
+                            if ( precio === "$ null COP" ){
+                                buttonDetalle = `Pendiente`
+                            }
+                           return`${buttonDetalle}`;
+                       } },                   
                    {
                        data: 'id',
-                       
-                       render: function(data, type, row, meta) {
-                           const urlEditTool = "".replace(0, data);
-                           const deleteTool = "".replace(0, data);
-                           const detalleTool = "".replace(0, data);
+                       render: function(data, type, row, meta) {                           
+                           const urldelete = "".replace(0, data);
+                           const urldetalle = "{% url 'gestionVentas:sale_detail' 0 %}".replace(0, data);
                            const nombre = row['nombre']
-                           const buttonDetalleUsuario = `
-                           {% if perms.mantenimiento.can_editar_orden_trabajo %}
-                               <a class="btn rounded-circle btn-icon btn-datatable btn-primary has-tooltip edit_btn text-white"
-                                   data-toggle="modal" data-target="#js-modal-3" data-title="Editar herramienta '${nombre}'"
-                                   data-width="modal-lg" data-placement="right"
-                                   data-url="${urlEditTool}" title="Editar Herramienta">
-                                   <i class="fas fa-pen"></i>
-                               </a>
-                               {% endif %}
+                           console.log(nombre)
+                           const buttonDetalle = `                               
+                               
                                <a class="btn rounded-circle btn-icon btn-datatable btn-success has-tooltip edit_btn text-white"
-                                    href="${detalleTool}" "
+                                    href="${urldetalle}" "
                                    ">
                                    <i class="fas fa-eye"></i>
                                </a>
-                               {% if perms.mantenimiento.can_editar_orden_trabajo %}
+                               
                                <a class="btn rounded-circle btn-icon btn-datatable btn-danger has-tooltip edit_btn text-white"
-                                   data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Herramienta '${nombre}'"
+                                   data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Producto ${nombre}"
                                    data-width="modal-md" data-placement="right"
-                                   data-url="${deleteTool}" title="Eliminar Herramienta">
+                                   data-url="${urldelete}" title="Eliminar Producto">
                                    <i class="fas fa-trash"></i>
                                </a>
-                               {% endif %}
+                               
                            `
                            return`
-                               ${buttonDetalleUsuario}
+                               ${buttonDetalle}
                            `;
                        }
                    }
@@ -178,7 +147,7 @@ $(document).ready(function (){
                    selector: 'td:first-child'
                },
            });
-
+           
            let selected = [];
             const selectAll = document.querySelector('.selectAll');
             const updateSelectedInfo = () => {
@@ -220,90 +189,6 @@ $(document).ready(function (){
                 setSelectAllState();
                 updateSelectedInfo();
             });
-            
-
-            // filtro fecha creacion OT
-            const today = luxon.DateTime.now();
-            const finDefaultDate = today.startOf('week').minus({ day: 1 }).toJSDate();
-            const initDefaultDate = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
-
-            /* Input fecha creacion OT */
-            const dateRange = new Litepicker({
-                element: document.getElementById('fecha_creacion_rango'),
-                lang: 'es-CO',
-                singleMode: false,
-                numberOfMonths: 2,
-                numberOfColumns: 2,
-                format: 'YYYY/MM/DD',
-                plugins: ['ranges'],
-                ranges: {
-                    customRanges: {
-                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
-                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
-                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
-                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
-                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                    }
-                }
-            }).on('selected', (date, calendarIdx) => {
-                table.draw();
-            });
-
-            /* clean input fecha creacion OT */
-            const clean_input_fecha_inicio_contrato = document.getElementById('clean_fecha_creacion_rango')
-            clean_input_fecha_inicio_contrato.addEventListener('click', function () {
-                document.getElementById('fecha_creacion_rango').value = '';
-                table.draw();
-            })
-
-            // filtro fecha cierre OT
-            // const today_cierre_ot = luxon.DateTime.now();
-            // const finDefaultDateCierre = today.startOf('week').minus({ day: 1 }).toJSDate();
-            // const initDefaultDateCierre = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
-
-            /* Input fecha cierre OT */
-            const dateRangeCierreOT = new Litepicker({
-                element: document.getElementById('fecha_cierre_rango'),
-                lang: 'es-CO',
-                singleMode: false,
-                numberOfMonths: 2,
-                numberOfColumns: 2,
-                format: 'YYYY/MM/DD',
-                plugins: ['ranges'],
-                ranges: {
-                    customRanges: {
-                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
-                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
-                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
-                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
-                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                    }
-                }
-            }).on('selected', (date, calendarIdx) => {
-                table.draw();
-            });
-
-            /* clean input fecha inicio contrato */
-            const clean_input_fecha_cierre_ot = document.getElementById('clean_fecha_cierre_rango')
-            clean_input_fecha_cierre_ot.addEventListener('click', function () {
-                document.getElementById('fecha_cierre_rango').value = '';
-                table.draw();
-            })
-
-
-            /* Filtro Cliente */
-            const select_cliente = document.querySelector('#cliente-filter')
-            select_cliente.addEventListener('change', function (event) {
-                table.draw();
-            })
-
-            /* Filtro Condición */
-            const select_condicion = document.querySelector('#condicion-filter')
-            select_condicion.addEventListener('change', function (event) {
-                table.draw();
-            })
         })
 </script>
 {% endblock js %}  

@@ -25,6 +25,14 @@ urlpatterns = [
         api_views.ListarProductosView.as_view(),
         name='products_list_api'),
     path(
+        'api/info_products/',
+        api_views.InfoProductosAPIView.as_view(),
+        name='info_products_list_api'),
+    path(
+        'api/sales_list/',
+        api_views.ListarVentasView.as_view(),
+        name='sales_list_api'),
+    path(
         'add_product',
         views.RegistrarProductoView.as_view(),
         name='add_product'),
@@ -36,4 +44,12 @@ urlpatterns = [
         'delete_product/<pk>/',
         views.EliminarProductoView.as_view(),
         name='delete_product_view'),
+    path(
+        'registrar_venta',
+        views.RegistrarVentaView.as_view(),
+        name='registrar_venta'),
+    path(
+        'sale_detail/<pk>/',
+        views.DetalleVentaView.as_view(),
+        name='sale_detail'),
 ]

@@ -1,0 +1,165 @@
+{% load crispy_forms_tags %}
+{% include "components/non_field_errors.html" %}
+<body class="bg-white">
+    <div class=" d-flex justify-content-center ">
+        
+        <label for="fecha" class="font-weight-bold text-info h4 form-label">No.
+            <strong>
+                <div class="consecutivo pl-2 d-inline fw-bolder">88:88:88</div>
+            </strong>
+        </label>
+    </div>
+    <form onkeydown="return event.key != 'Enter';" class="bg-white" action="{% url 'gestionVentas:registrar_venta' %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
+    
+    {{ form.cliente|as_crispy_field }}   
+    {{ form.fecha_venta|as_crispy_field }}
+    
+    <input type="text" name="repuestos" id="id_repuestos" style="display: none;">
+    <label for="nombre" class="form-label ">Incluir Productos </label>
+        <select id="id_inforepuesto" class="listAutoSelect form-control text-info" name="productos" autocomplete="off"
+            placeholder="Escribe el nombre para filtrar..." data-url="{% url 'gestionVentas:info_products_list_api' %}"
+            >
+        </select>
+        <div class="container">
+            <ul id="myUL" class="row" style="width: 100%; list-style: none;"> </ul> 
+        </div>          
+    <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
+    </form> 
+</body>
+
+<style>
+li>.close {
+    float: right;
+    font-weight: 500;
+    line-height: 1;
+    background-color: rgba(255,0,0,1);
+    opacity: 1 !important;
+    color: white !important;
+}
+input[type='datetime-local']{
+    background-color: #0d6efd;
+    padding: 6px;
+    margin: 2px;
+    text-align: center;
+    font-family:"Roboto Mono", monospace ;
+    color: #ffffff;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    border-radius: 5%;
+    /*width:150px;*/
+}
+::-webkit-calendar-picker-indicator{
+    background-color: #ffffff;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+</style>
+<script>
+
+// visaulizacion Consecutivo
+setInterval(() => {
+    const consecutivo = document.querySelector('.consecutivo');
+    const tiempoActual = new Date();
+    const year = tiempoActual.getFullYear()
+    consecutivo.innerHTML = `SALE-${year.toLocaleString()}---`;
+}, 1000);  
+
+$('.listAutoSelect').autoComplete({
+    resolverSettings: {
+        queryKey: 'search[value]',
+    },
+    minLength: 2, 
+    });
+    
+//actualiacion de listado ul
+function actualizarListado(intexto){
+    let inputHetta = document.getElementById("id_repuestos");
+    let inputSearchHetta = document.getElementById("id_inforepuesto");
+    let texto = intexto;
+    let ul = document.getElementById("myUL")
+    let li = document.createElement("li");
+    li.className="border-bottom pt-2"
+    li.style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+    
+    if ( ul.innerHTML.includes(texto) ) {
+        alert("Ya seleccionado!");
+    }
+    else{
+        let t = document.createTextNode(texto);
+        li.appendChild(t);
+        
+        if (texto === '') {
+            alert("You must write something!");
+        } else {
+            document.getElementById("myUL").appendChild(li);
+        }
+
+        let item = document.createElement("LI");
+        let link = document.createElement("A");
+        let close = document.getElementsByClassName("close btn-icon");                
+        
+        link.className = "close btn  btn-sm btn-icon has-tooltip ";
+        link.style = "background-color: rgba(255,0,0,1);";
+        item.className = "fa fa-trash";
+        item.style = "font-size:12px";
+        li.appendChild(link);
+        link.appendChild(item);
+
+        function actualizarinputHetta() {
+            let listaSitios = [];
+            for (i = 0; i < ul.children.length; i++) {                    
+            let valor=ul.children[i].innerText
+            valor=valor.replace("\n", "")                    
+            listaSitios.push(valor)
+            inputHetta.value=`${listaSitios}`
+            }
+        };
+        actualizarinputHetta() ;
+        for (i = 0; i < close.length; i++) {
+            close[i].onclick = function() {
+            let div = this.parentElement;
+            div.style.display = "none";
+            div.innerText = "";
+            actualizarinputHetta() ;
+            }
+        }
+        inputSearchHetta.text=""
+    } 
+    return 'ok'
+}
+
+//Agregar item mediante enter 
+$('.listAutoSelect').on("keydown", function(event) {
+    if (event.key === "Enter") {
+        let text = $('#id_inforepuesto').val()
+        posicion = text.search("<img");
+        text_item=text.slice(0,posicion-2)
+        id_rep= text.slice(1,2)
+        $('.listAutoSelect').autoComplete('set', { value:id_rep, text: text_item });
+        actualizarListado(text_item)
+    }
+})
+    
+//Agregar item mediante click    
+$(document).change(function() {
+    $('a.active').click(function(e){
+        let alink = document.getElementsByClassName("dropdown-item active");
+        let text = alink[0].text
+        posicion = text.search("<img");
+        text_item=text.slice(0,posicion-1)
+        id_rep= text.slice(1,2)
+        actualizarListado(text_item).then(
+            setTimeout(() => {
+            $('.listAutoSelect').autoComplete('set', { value:id_rep, text: text_item });   
+        }, 100)
+        );
+    })})
+    
+// Reload page
+$("#js-modal-3").on("hidden.bs.modal", function () {
+    window.location.reload()
+});    
+    
+</script>
