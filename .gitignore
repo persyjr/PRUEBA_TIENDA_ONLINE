@@ -1,2 +1,5 @@
 venv
 media/
+.env
+TiendaOnline/TiendaOnline/.env
+/.env
