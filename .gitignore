@@ -3,3 +3,19 @@ media/
 .env
 TiendaOnline/TiendaOnline/.env
 /.env
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+*.py[cod]
+.python-version
+
+# Log files
+*.log
+
+# Package files
+*.jar
+
+# Maven
+target/
+dist/
