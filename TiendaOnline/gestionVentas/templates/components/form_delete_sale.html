@@ -1,0 +1,10 @@
+{% block content %}
+<body>
+    <form   action="{% url 'gestionVentas:delete_sale_view' object.id %}" method="POST" enctype="multipart/form-data" class="">{% csrf_token %}    
+    {% csrf_token %}
+    <p class="h5 text-center text-info"><span class="h2 text-center text-info d-inline h2">¿</span> Deseas eliminar la venta <span class="h2 text-center text-info d-inline h2">?</span></p>
+    <p class="h5 text-center text-info">{{ object.consecutivo }}</p>
+    {{form}}
+    <button class="btn btn-outline-danger w-100"  type="submit">Eliminar</button>
+</body>
+{% endblock %}

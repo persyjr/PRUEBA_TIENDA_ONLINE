@@ -5,7 +5,7 @@ from abm import models as abm_m
 class Producto(models.Model):
     codigo=models.CharField(max_length=20)
     nombre=models.CharField(max_length=30)
-    valor_venta=models.CharField(max_length=50,verbose_name='Domicilio Cliente')
+    valor_venta=models.CharField(max_length=50,verbose_name='Valor ventas')
     tiene_iva = models.BooleanField(default=False, null=True)
     porcentaje_iva= models.FloatField(blank=True, null=True)
     imagen = models.FileField(upload_to='gestionVentas/productos', blank=True, null=True)

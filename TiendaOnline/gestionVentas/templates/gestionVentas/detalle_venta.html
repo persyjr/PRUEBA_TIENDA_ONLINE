@@ -33,6 +33,17 @@
     /*box-shadow: 0 40px 70px rgba(8, 247, 4, 0.5);*/
     transition: 0.9s;
     }
+    img.icono_product:hover {
+    transform: translateY(-5px);
+    position: relative;
+    object-fit: cover;
+    box-shadow: 0 40px 70px rgba(65, 4, 247, 0.5);
+    background-color: rgba(255, 255, 255, 0.982);
+    min-width: 100px;
+    min-height: 100px;
+    cursor: pointer;
+    transition: 1.2s;
+    }
     .float-box{
     position: relative;
     min-width: 150px;
@@ -52,53 +63,41 @@
 <div  id="pspdfkit-header">
 
 -->
- 
-    {% if cotizaciones and object.mantenimiento %}
+ <!-- panel lateral inicio --> 
+   
     <div class="row">
         <div class="col-md-9 "  >
         </div>
          <div class="col-md-3">
-            <div class="float-box" style="position:fixed;left:79.1%; background: rgba(243, 18, 18, 0.185);"> 
+            <div class="float-box" style="position:fixed;left:79.1%; background: rgba(18, 40, 243, 0.185);"> 
                 <div class="row" style="width: 300px;">
                     <div class="col-12">
                         <div class=" d-flex justify-content-center" >
-                            <a href="" class="btn btn-primary  w-100" style="border-radius: 20px 20px 0 0;">Todas las cotizaciones</a>   
+                            <a href="{% url 'gestionVentas:sales_list' %}" class="btn btn-primary  w-100" style="border-radius: 20px 20px 0 0;">Todas las Ventas</a>   
                         </div>
-                        <div class=" d-flex justify-content-center ">
-                            <a href="" style="border-radius: 0 ;" class="btn btn-primary btn-sm w-50">Ir a {{ object.mantenimiento.ordenDeTrabajo.consecutivo }} </a>
-                            <a href=""  style="border-radius: 0 ;"  class="btn btn-primary btn-sm w-50">Ir a {{ object.mantenimiento.consecutivo }}</a>
+                        <div class=" d-flex justify-content-center">
+                            <button class="btn btn-outline-primary text-white w-100" type="button" data-target="#js-modal-3" data-toggle="modal"
+                                data-action="Editar Header" data-title="Editar Header" data-width="modal-lg"
+                                data-url="{% url 'gestionVentas:update_head_sale' object.id %}">
+                                Editar Header
+                            </button>
                         </div>
-                        
-                        <button id="open_menu" class="w-100" type="button" >
-                            <div class=" px-2 text-primary"> Base  {{ object.mantenimiento.ordenDeTrabajo.sitio }} </div> 
-                            <code> orden : {{ object.mantenimiento.ordenDeTrabajo.consecutivo }} </code> 
-                        </button>
-                        <div class="d-flex justify-content-center w-100">
-                            <code id="total_ot">  </code> 
+                        <div class=" d-flex justify-content-center">
+                            <button class="btn btn-outline-primary text-white w-100" type="button" data-target="#js-modal-3" data-toggle="modal"
+                            data-action="Crear Cotizacion" data-title="Crear Cotización" data-width="modal-lg"
+                            data-url="{% url 'gestionVentas:new_item_sale' object.id %}">
+                            Agregar Productos
+                            </button>
                         </div>
-                    </div>
-                    <div class="col-12" id="list_menu" style="display: none ;overflow-y: auto; overflow-x: hidden; max-height: 400px;">
-                        <ul style=" list-style: none;" >
-                            {% for cotizacion in cotizaciones %}
-                                <a href="">
-                                    <li class="d-flex justify-content-center align-items-center">{{ cotizacion.id }} 
-                                        {{cotizacion.estado}}
-                                        {% if cotizacion.estado == 'CR' %}
-                                        <i class='fa fa-clipboard-check' style='margin: 0 2px 0 5px ;font-size:18px; color: green;'></i>
-                                        {% else %}
-                                        <i class='fa fa-exclamation-circle' style='margin: 0 2px 0 5px ; font-size:18px; color: red;'></i> 
-                                        {% endif %}                                        
-                                        <div style="min-width: 135px;"  class="d-flex justify-content-end totales px-1">{{cotizacion.totales}}</div>
-                                    </li>
-                                </a>
-                            {% endfor %}
-                        </ul> 
+                        <div class=" d-flex justify-content-center">
+                            <a class="btn btn-primary text-white w-100" style="border-radius: 0 0 20px 20px ;"  id="download-button">Download as PDF</a>   
+                        </div>
                     </div>
                 </div>
            </div>  
         </div>
     </div>
-    {% endif %}
+  <!-- panel lateral fin -->   
 <form class="bg-white" action="" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
      
     <div id="invoice"  style="page-break-after: always">
@@ -138,7 +137,14 @@
                                 <p style="border-bottom: 1px solid #D9D9D9;" class="w-100 h-50 pl-3">
                                     {% if object.cliente %}
                                     <span class="pt-3  pb-1 d-flex justify-content-start  w-100 " style="font-size: 0.625rem;   margin: 0;  ">Fecha de Venta:</span>
-                                    <span class="d-flex justify-content-start  w-100 " style="font-size: 0.625rem;   margin: 0; padding: 0;">{{ object.cliente.fecha_venta }}</span>
+                                    <span class="d-flex justify-content-start  w-100 " style="font-size: 0.625rem;   margin: 0; padding: 0;">
+                                        {% if object.fecha_venta == None %}
+                                        ---------
+                                    {% else %}
+                                    {{ object.fecha_venta }}
+                                    {% endif %}
+                                        
+                                    </span>
                                     {% endif %}
                                 </p>
                                 <p class="w-100 h-50 pl-3 "class="d-flex justify-content-center align-items-center">
@@ -156,9 +162,13 @@
                         <tr class="d-flex justify-content-center " style=" border-top: 1px solid #D9D9D9; width: 100%; font-size: 0.6rem; padding: 0rem;">
                             <th class="p-0 d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >ITEM
                             </th>
-                            <th class="p-0 " style="width: 60%; font-size: 0.6rem; padding: 0rem;" >DESCRIPCIÓN 
+                            <th class="p-0 d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >IMG 
                             </th>
-                            <th class="p-0 d-flex justify-content-end " style="width: 30%; font-size: 0.6rem; padding: 0rem;" >COSTOS
+                            <th class="p-0 " style="width: 40%; font-size: 0.6rem; padding: 0rem;" >DESCRIPCIÓN 
+                            </th>
+                            <th class="p-0 d-flex justify-content-end" style="width: 20%; font-size: 0.6rem; padding: 0rem;" >IVA 
+                            </th>
+                            <th class="p-0 d-flex justify-content-end " style="width: 20%; font-size: 0.6rem; padding: 0rem;" >VALOR
                             </th>
                         </tr>
                         
@@ -168,97 +178,53 @@
                         <tr class="d-flex justify-content-center " style=" border-top: 1px solid #D9D9D9; width: 100%; font-size: 0.6rem; padding: 0rem;">
                             
                                 <td class="p-0  d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >
-                                    {% if object.estado == 'AB' %}
-                                    <a class="p-0 m-0 w-100  btn-datatable  edit_btn "
-                                        data-toggle="modal" data-target="#js-modal-3" data-title="Actualizar Item Cotización"
-                                        data-width="modal-lg" data-placement="right"                                    
-                                        data-url="" title="Actualizar Item Cotización">
-                                        <span class="d-flex edit justify-content-center w-100 ">
-                                            {{forloop.counter}} 
-                                        </span>
-                                    </a>
-                                    {% else %}
                                     <span class="d-flex edit justify-content-center w-100 ">
                                         {{forloop.counter}} 
                                     </span>
-                                    {% endif %}
                                 </td>
-                                <td class="p-0 " style="width: 60%; font-size: 0.6rem; padding: 0rem;" >
-                                    <span class="text-uppercase">{{item.nombre}}</span>, <span class="">{{item.descripcion}}</span> 
-                                </td>
-                                <td class="p-0 d-flex justify-content-end" style="width: 30%; font-size: 0.6rem; padding: 0rem;" >
-                                    {% if object.estado == 'AB' %}
+                                <td class="p-0 d-flex justify-content-center " style="width: 10%; font-size: 0.6rem; padding: 0rem;" >
                                     <a
                                      class="p-0 m-0  btn-datatable  edit_btn "
-                                    data-toggle="modal" data-target="#js-modal-3" data-title="Actualizar Item Cotización"
+                                    data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Item Venta"
                                     data-width="modal-lg" data-placement="right"                                    
-                                    data-url="" title="Actualizar Item Cotización"
-                                    >
-                                    {% endif %}
-                                    <span class="delete">
-                                    {% if item.cobro %}
-                                    $ {{item.cobro}} 
+                                    data-url="{% url 'gestionVentas:delete_item_sale_view' item.id %}" title="Eliminar Item Venta"
+                                        >
+                                    <img class="icono_product" style="height: 1rem; width: 1rem; border-radius: 50%;" src="{{item.producto.imagen.url}}" alt=""> 
+                                    </a>
+                                </td>
+                                <td class="p-0 " style="width: 40%; font-size: 0.6rem; padding: 0rem;" >
+                                    <span class="text-uppercase">{{item.producto.codigo}}</span>, <span class="">{{item.producto.nombre}}</span> 
+                                </td>
+                                <td class="p-0 d-flex justify-content-end" style="width: 20%; font-size: 0.6rem; padding: 0rem;" >
+                                    <span class="">
+                                        {% if item.iva == 0.0 %}
+                                            ---------
+                                        {% else %}
+                                            $  {{item.iva}}
+                                        {% endif %}
+                                    </span> 
+                                    <span class="pl-1">
+                                        {% if item.producto.porcentaje_iva == None %}
+                                            ---------
+                                        {% else %}
+                                            [{{item.producto.porcentaje_iva}} %]
+                                        {% endif %}
+                                    </span> 
+                                </td>
+                                <td class="p-0 d-flex justify-content-end" style="width: 20%; font-size: 0.6rem; padding: 0rem;" >
+                                    {% if item.valor %}
+                                        $ {{item.valor}} 
                                     {% else %}
-                                        $ 0 
+                                            $ 0 
                                     {% endif %}
-                                    </span>
-                                </a>
                                 </td>                            
                         </tr>
                         {% endfor %}
                         {% endif %}
-                        <!-- INICIA  RENDERIZADO DE REPUESTOS -->
-                        {% if solicitudes %}
-                        {% for  obj_repuesto in solicitudes %}
-                        <tr class="d-flex justify-content-center " style=" border-top: 1px solid #D9D9D9; width: 100%; font-size: 0.6rem; padding: 0rem;">
-                                    <td class="p-0 d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >
-                                        <span class="d-flex justify-content-center ">
-                                            {% with counter=items_cotizacion|length|add:forloop.counter %}
-                                                {{counter}}
-                                            {% endwith %}
-                                        </span>
-                                    
-                                            
-                                            
-                                    </td>
-                                    <td class="p-0 " style="width: 60%; font-size: 0.6rem; padding: 0rem;" >
-                                        {% if obj_repuesto.titulo %}
-                                        <span class="text-uppercase">{{obj_repuesto.titulo}}</span> 
-                                        {% else %}
-                                        <span class="text-uppercase">{{obj_repuesto.observaciones}}</span> 
-                                        {% endif %}
-                                    </td>
-                                    <td class="p-0 d-flex justify-content-end" style="width: 30%; font-size: 0.6rem; padding: 0rem;" >
-                                    <a class="p-0 m-0 d-flex justify-content-end w-100  btn-datatable  edit_btn "
-                                        data-toggle="modal" data-target="#js-modal-3" data-title="Actualizar Repuesto Cotización"
-                                        data-width="modal-lg" data-placement="right"                                    
-                                        data-url="" title="Actualizar Repuesto Cotización">
-                                        <span class="delete">
-                                        {% if obj_repuesto.cobro %}
-                                            $ {{obj_repuesto.cobro}}
-                                        {% else %}
-                                            $ 0 
-                                        {% endif %}
-                                    </span>
-                                    </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                        {% endif %}
+                        
                         <tr class="d-flex justify-content-center " style=" width: 100%; font-size: 0.6rem; padding: 0rem;">
                             <td class="p-0 d-flex justify-content-center" style=" width: 50%; font-size: 0.6rem; padding: 0rem;" >
-                                <div class="row pt-3 d-flex justify-content-center">
-                                    {% for repuesto in solicitudes_costosas %}
-                                    <div class="col p-0 m-0">
-
-                                        {% if not repuesto.adjunto_gestion  %}
-                                        <img  style=" object-fit: cover; width:100px ; height: 150px;" class="d-inline" src="" alt="">
-                                        {% else %}
-                                        <img  style=" object-fit: cover; width:100px ; height: 150px;" class="d-inline" src="" alt="">
-                                        {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                                
                             </td>
                             <td class="p-0 " style="width: 50%; font-size: 0.6rem;" >
                                 <p class="p-0 m-0 d-flex justify-content-between" style=" padding: 0rem; border-bottom: 1px solid #D9D9D9;">
@@ -308,32 +274,12 @@
     </div>    
 </form> 
 
-<div class="d-flex justify-content-center mt-5">
-    
-    <div class=" d-flex justify-content-center">
-            <button class="btn btn-info text-white ml-2" type="button" data-target="#js-modal-3" data-toggle="modal"
-            data-action="Crear Cotizacion" data-title="Crear Cotización" data-width="modal-lg"
-            data-url="">
-            Agregar item
-        </button>
-    </div>
-    <div class=" d-flex justify-content-center">
-        <button class="btn btn-info text-white ml-2" type="button" data-target="#js-modal-3" data-toggle="modal"
-            data-action="Editar Cotizacion" data-title="Editar Cotización" data-width="modal-lg"
-            data-url="">
-            Editar Cotizacion
-        </button>
-    </div>
-    <div class=" d-flex justify-content-center">
-        <a class="btn btn-outline-primary text-primary" style="width: 150px;" id="download-button">Download as PDF</a>   
-    </div>
-    
-</div>
+
 
 {% endblock content %}
 {% block js %}
 {% include "components/js_modal.html"  %}
-
+<script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js" integrity="sha384-q/gioCoyP7Ot1cPl/TUoiZVdDMOM5ETruQZ2N9viR6yHJdbA1UQTX5LUfFzhbRXC" crossorigin="anonymous"></script>
 <script>
     $(function(){
         let totales_div = document.getElementsByClassName('totales')

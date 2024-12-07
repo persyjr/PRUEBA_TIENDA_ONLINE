@@ -14,7 +14,7 @@
               data-url="{% url 'gestionVentas:add_product' %}">
               Registrar Producto
           </button>
-          <a href="" class="btn btn-primary btn-md"
+          <a href="{% url 'gestionVentas:product_report_excel' %}" class="btn btn-primary btn-md"
               type="button">Descargar Reporte
           </a>
       </div>
@@ -144,12 +144,6 @@ $(document).ready(function (){
                                    data-width="modal-lg" data-placement="right"
                                    data-url="${urlEdit}" title="Editar Producto">
                                    <i class="fas fa-pen"></i>
-                               </a>
-                               
-                               <a class="btn rounded-circle btn-icon btn-datatable btn-success has-tooltip edit_btn text-white"
-                                    href="${urldetalle}" "
-                                   ">
-                                   <i class="fas fa-eye"></i>
                                </a>
                                
                                <a class="btn rounded-circle btn-icon btn-datatable btn-danger has-tooltip edit_btn text-white"

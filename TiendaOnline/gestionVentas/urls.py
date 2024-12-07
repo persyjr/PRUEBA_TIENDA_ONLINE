@@ -41,6 +41,10 @@ urlpatterns = [
         views.ActualizarProducto.as_view(),
         name='update_product'),
     path(
+        'update_head_sale/<pk>/',
+        views.ActualizarDatosVenta.as_view(),
+        name='update_head_sale'),
+    path(
         'delete_product/<pk>/',
         views.EliminarProductoView.as_view(),
         name='delete_product_view'),
@@ -52,4 +56,24 @@ urlpatterns = [
         'sale_detail/<pk>/',
         views.DetalleVentaView.as_view(),
         name='sale_detail'),
+    path(
+        'delete_sale/<pk>/',
+        views.EliminarVentaView.as_view(),
+        name='delete_sale_view'),
+    path(
+        'delete_item_sale/<pk>/',
+        views.EliminarItemVentaView.as_view(),
+        name='delete_item_sale_view'),
+    path(
+        'new_item_sale/<pk>/',
+        views.CrearItemVenta.as_view(),
+        name='new_item_sale'),
+    path(
+        'sales_report_excel/',
+        views.ReporteVentasView.as_view(),
+        name='sales_report_excel'),
+    path(
+        'product_report_excel/',
+        views.ReporteProductosView.as_view(),
+        name='product_report_excel'),
 ]

@@ -14,7 +14,7 @@
               data-url="{% url 'gestionVentas:registrar_venta' %}">
               Registrar Venta
           </button>
-          <a href="" class="btn btn-primary btn-md"
+          <a href="{% url 'gestionVentas:sales_report_excel' %}" class="btn btn-primary btn-md"
               type="button">Descargar Reporte
           </a>
       </div>
@@ -115,7 +115,7 @@ $(document).ready(function (){
                    {
                        data: 'id',
                        render: function(data, type, row, meta) {                           
-                           const urldelete = "".replace(0, data);
+                           const urldelete = "{% url 'gestionVentas:delete_sale_view' 0 %}".replace(0, data);
                            const urldetalle = "{% url 'gestionVentas:sale_detail' 0 %}".replace(0, data);
                            const nombre = row['nombre']
                            console.log(nombre)

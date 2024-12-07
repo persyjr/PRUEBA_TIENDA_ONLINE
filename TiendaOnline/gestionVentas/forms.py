@@ -1,4 +1,5 @@
 from django import forms
+from abm import models as abm_m
 from . import models as m
 
 
@@ -35,11 +36,24 @@ class RegistrarProductoForm(forms.ModelForm):
         model = m.Producto
         fields = ['nombre', 'codigo', 'valor_venta','tiene_iva','porcentaje_iva','imagen']
     
-    widgets={
-            'telefono': forms.NumberInput(attrs={'min': '3000000000','max': '9999999999', 'class': 'form-comtrol'}),
-            'porcentaje_iva': forms.NumberInput(),
-            'imagen':ImageCompressWidget({'retirarNA': 'retirarNA'}),
-     }
+        widgets={
+                'tiene_iva': forms.CheckboxInput({'style': 'height: 0.9rem;'}),
+                'porcentaje_iva': forms.NumberInput(attrs={
+                    'min': '0',
+                    'max': '100',
+                    'class': 'form-control'
+                }),
+                'imagen':ImageCompressWidget({
+                    'cleareable': 'cleareable',
+                    }),
+        }
+    def clean_porcentaje_iva(self):
+        porcentaje_iva = self.cleaned_data.get('porcentaje_iva')
+        if porcentaje_iva is not None:
+            if porcentaje_iva < 0 or porcentaje_iva > 100:
+                raise forms.ValidationError("El porcentaje de IVA debe estar entre 0 y 100.")
+        return porcentaje_iva
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['codigo'].label = 'Código'
@@ -48,7 +62,7 @@ class RegistrarProductoForm(forms.ModelForm):
         self.fields['nombre'].required = True
         self.fields['codigo'].required = True
         self.fields['valor_venta'].required = True
-        self.fields['tiene_iva'].required = True
+        # self.fields['tiene_iva'].required = True
         # self.fields['porcentaje_iva'].required = True
         self.fields['nombre'].widget.attrs.update(
             {"class": "text-info",
@@ -92,3 +106,27 @@ class ActualizarVentaForm(forms.ModelForm):
         model = m.Venta
         fields = ['cliente',]
         widgets = {}
+
+class ActualizarDatosVentaForm(forms.ModelForm):
+    class Meta:
+        model = m.Venta
+        fields = ['cliente','fecha_venta']
+        widgets = {
+            'fecha_venta': forms.DateInput(
+                    {'class': 'form control',
+                    'type': 'datetime-local',
+                    'style': 'border-style: none;'}),
+        }
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if self.instance:
+                self.fields['cliente'].queryset = abm_m.Clientes.objects.all()
+            self.fields['cliente'].widget.attrs.update(
+                {"class": "text-info"})
+
+class NuevoItemVeta(forms.ModelForm):
+    class Meta:
+        model = m.ItemVenta
+        fields = [
+            'cantidad',
+            ]
