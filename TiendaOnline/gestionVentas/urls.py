@@ -75,5 +75,4 @@ urlpatterns = [
     path(
         'product_report_excel/',
         views.ReporteProductosView.as_view(),
-        name='product_report_excel'),
-]
+        name='product_report_excel'),]

@@ -2,6 +2,8 @@ from django.contrib import admin
 from gestionVentas import models as m
 
 # Register your models here.
+
+
 @admin.register(m.Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = (
@@ -12,7 +14,7 @@ class ProductoAdmin(admin.ModelAdmin):
         'porcentaje_iva',
         'imagen',
         )
-    fields =(
+    fields = (
         'codigo',
         'nombre',
         'valor_venta',
@@ -20,6 +22,7 @@ class ProductoAdmin(admin.ModelAdmin):
         'porcentaje_iva',
         'imagen',
         )
+
 
 @admin.register(m.Venta)
 class VentaAdmin(admin.ModelAdmin):
@@ -29,12 +32,13 @@ class VentaAdmin(admin.ModelAdmin):
         'total_venta',
         'fecha_creacion',
         )
-    fields =(
+    fields = (
         'cliente',
         'consecutivo',
         'total_venta',
         )
-    
+
+
 @admin.register(m.ItemVenta)
 class ItemVentaAdmin(admin.ModelAdmin):
     list_display = (
@@ -43,7 +47,7 @@ class ItemVentaAdmin(admin.ModelAdmin):
         'valor',
         'iva',
         )
-    fields =(
+    fields = (
         'venta',
         'producto',
         'valor',

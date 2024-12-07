@@ -1,14 +1,16 @@
-from rest_framework import generics, permissions, filters
+from rest_framework import generics
 from common.api_views import DataTablePagination, DataTableSearchFilter
 from csp.decorators import csp_exempt
 from . import models as m
 from . import serializers as se
 
+
 class CspExemptMixin:
     @csp_exempt
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
+
 class ListarVentasView(generics.ListAPIView):
 
     pagination_class = DataTablePagination
@@ -17,7 +19,7 @@ class ListarVentasView(generics.ListAPIView):
     search_fields = [
             'id', 'cliente__nombre',
         ]
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     queryset = m.Venta.objects.all().order_by('-fecha_creacion')
 
 
@@ -27,10 +29,11 @@ class ListarProductosView(generics.ListAPIView):
     serializer_class = se.ListProductosSerializer
     filter_backends = [DataTableSearchFilter]
     search_fields = [
-            'id', 'nombre','codigo',
+            'id', 'nombre', 'codigo',
         ]
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     queryset = m.Producto.objects.all().order_by('-fecha_creacion')
+
 
 class InfoProductosAPIView(CspExemptMixin, generics.ListAPIView):
     serializer_class = se.FilterProductosSerializer

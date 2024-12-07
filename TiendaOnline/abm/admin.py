@@ -2,6 +2,8 @@ from django.contrib import admin
 from abm import models as m
 
 # Register your models here.
+
+
 @admin.register(m.Clientes)
 class Abm(admin.ModelAdmin):
     list_display = (
@@ -9,7 +11,7 @@ class Abm(admin.ModelAdmin):
         'email',
         'telefono',
         )
-    fields =(
+    fields = (
         'nombre',
         'email',
         'telefono',

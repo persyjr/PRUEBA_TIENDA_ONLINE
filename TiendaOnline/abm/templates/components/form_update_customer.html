@@ -6,15 +6,12 @@
             <div class=" pl-2 d-inline fw-bolder">Actualizar Cliente</div>
         </strong>
     </label>
-    <form class="bg-white" action="{% url 'abm:update_customer' object.id %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}    
-    
+    <form class="bg-white" action="{% url 'abm:update_customer' object.id %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %}
         {{ form.nombre|as_crispy_field }}   
         {{ form.email|as_crispy_field }}
         {{ form.telefono|as_crispy_field }}
         {{ form.direccion|as_crispy_field }}
-    
-         
-    <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
+        <button class="btn btn-outline-info w-100" type="submit">Guardar</button>
     </form> 
 </body>
 <script>

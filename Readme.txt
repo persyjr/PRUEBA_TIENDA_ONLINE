@@ -22,7 +22,10 @@ Proyecto para la gestión administrativa de las ventas e ingreso de productos de
 4. Iniciar Django
     $python TiendaOnline/manage.py runserver
 
-5. crear super user para base local
+5. correr migraciones.
+    $python TiendaOnline/manage.py migrate
+
+6. crear super user para base local
     $python TiendaOnline/manage.py createsuperuser
     user_admin : admin
     pwd : admin

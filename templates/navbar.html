@@ -79,7 +79,7 @@
 {% block js %}
     <script>
         $(document).ready(function (){
-            var ref = document.querySelector('.referencia')
+            let ref = document.querySelector('.referencia')
             if ( ref != null ) {
                 const r = ref.getAttribute('data-ref')
                 const l = document.querySelector(`#${r}`)

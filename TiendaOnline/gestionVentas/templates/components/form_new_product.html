@@ -27,8 +27,6 @@
     let check_iva = document.getElementById('id_tiene_iva')
     let div_porcentaje = document.getElementById('agregar_porcentaje')
     check_iva.addEventListener('change', function(){
-    
-    console.log(this.value)
     if(this.checked){
         div_porcentaje.style.display='block'
         check_iva.required=true
@@ -36,7 +34,6 @@
         div_porcentaje.style.display='none'
         check_iva.required=false
     }
-    console.log(check_iva)
     })   
     
 

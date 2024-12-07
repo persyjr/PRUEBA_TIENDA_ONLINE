@@ -1,5 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
 from django.views import generic
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -8,16 +6,17 @@ from typing import Any
 from . import models as m
 from . import forms as f
 # Create your views here.
+
+
 class listarClientes(generic.ListView):
     model = m.Clientes
     template_name = 'abm/customer_list.html'
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'clientes': m.Clientes.objects.all(),
-            #'estados': m.Herramienta.EstadoHettaEnum.choices,
         })
         return super().get_context_data(**kwargs)
+
 
 class listarUsuarios(generic.ListView):
     model = m.Clientes
@@ -25,21 +24,18 @@ class listarUsuarios(generic.ListView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'clientes': m.Clientes.objects.all(),
-            #'estados': m.Herramienta.EstadoHettaEnum.choices,
         })
         return super().get_context_data(**kwargs)
-    
+
+
 class RegistrarClienteView(generic.FormView):
-    #permission_required = 'mantenimiento.can_ver_orden_trabajo'
+    # permission_required = 'mantenimiento.can_ver_orden_trabajo'
     template_name = 'components/form_new_customer.html'
     model = m.Clientes
     form_class = f.RegistrarClienteForm
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            #'form': f.OrdenDeTrabajoForm,
-            #'clientes': m_abm.Cliente.objects.all(),
         })
         return super().get_context_data(**kwargs)
 
@@ -54,7 +50,7 @@ class RegistrarClienteView(generic.FormView):
             telefono=telefono,
             direccion=direccion,
             )
-        cliente.save()        
+        cliente.save()
 
         return HttpResponseRedirect(reverse_lazy('abm:customer_list'))
 
@@ -62,7 +58,8 @@ class RegistrarClienteView(generic.FormView):
         return JsonResponse({'status': 'error', 'errors': form.errors},
                             status=400)
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+    def post(self, request: HttpRequest, *args: str,
+             **kwargs: Any) -> HttpResponse:
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             return self.form_valid(form)
@@ -87,7 +84,7 @@ class ActualizarClienteView(generic.UpdateView):
         cliente.telefono = form.cleaned_data['telefono']
         cliente.email = form.cleaned_data['email']
         cliente.save()
-       
+
         return HttpResponseRedirect(reverse_lazy(
             'abm:customer_list'))
 
@@ -95,13 +92,15 @@ class ActualizarClienteView(generic.UpdateView):
         return JsonResponse({'status': 'error', 'errors': form.errors},
                             status=400)
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        form = self.form_class(request.POST,request.FILES)
+    def post(self, request: HttpRequest, *args: str,
+             **kwargs: Any) -> HttpResponse:
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-        
+
+
 class EliminarClienteView(generic.DeleteView):
     # permission_required = 'mantenimiento.can_ver_herramientas'
     template_name = 'components/form_delete_customer.html'

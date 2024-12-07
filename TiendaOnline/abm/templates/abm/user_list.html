@@ -58,8 +58,8 @@
 <script type="module" src="{% static 'js/components/wm-image-field-docs.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" 
     integrity="sha384-GnF+B7IPjgq2orAiXXyQbAE1gEkYZrXQ094h+jt4M8SRBMQY+6MADLdrX70rLoeJ" 
-    crossorigin="anonymous"></script>
-
+    crossorigin="anonymous">
+</script>
 <script> 
 $(document).ready(function (){
             $(document).ready(function (){
@@ -219,88 +219,7 @@ $(document).ready(function (){
             });
             
 
-            // filtro fecha creacion OT
-            const today = luxon.DateTime.now();
-            const finDefaultDate = today.startOf('week').minus({ day: 1 }).toJSDate();
-            const initDefaultDate = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
-
-            /* Input fecha creacion OT */
-            const dateRange = new Litepicker({
-                element: document.getElementById('fecha_creacion_rango'),
-                lang: 'es-CO',
-                singleMode: false,
-                numberOfMonths: 2,
-                numberOfColumns: 2,
-                format: 'YYYY/MM/DD',
-                plugins: ['ranges'],
-                ranges: {
-                    customRanges: {
-                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
-                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
-                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
-                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
-                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                    }
-                }
-            }).on('selected', (date, calendarIdx) => {
-                table.draw();
-            });
-
-            /* clean input fecha creacion OT */
-            const clean_input_fecha_inicio_contrato = document.getElementById('clean_fecha_creacion_rango')
-            clean_input_fecha_inicio_contrato.addEventListener('click', function () {
-                document.getElementById('fecha_creacion_rango').value = '';
-                table.draw();
-            })
-
-            // filtro fecha cierre OT
-            // const today_cierre_ot = luxon.DateTime.now();
-            // const finDefaultDateCierre = today.startOf('week').minus({ day: 1 }).toJSDate();
-            // const initDefaultDateCierre = today.startOf('week').minus({ day: 1, year:10 }).toJSDate();
-
-            /* Input fecha cierre OT */
-            const dateRangeCierreOT = new Litepicker({
-                element: document.getElementById('fecha_cierre_rango'),
-                lang: 'es-CO',
-                singleMode: false,
-                numberOfMonths: 2,
-                numberOfColumns: 2,
-                format: 'YYYY/MM/DD',
-                plugins: ['ranges'],
-                ranges: {
-                    customRanges: {
-                        'Este Mes': [today.startOf('month').toJSDate(), today.endOf('month').toJSDate()],
-                        'Ultimos 3 Meses': [today.minus({ month: 3 }).toJSDate(), new Date()],
-                        'Ultimos 6 Meses': [today.minus({ month: 6 }).toJSDate(), new Date()],
-                        'Este año': [today.startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                        'Año anterior': [today.minus({ years: 1 }).startOf('year').toJSDate(), today.minus({ years: 1 }).endOf('year').toJSDate()],
-                        'Última decada': [today.minus({ years: 10 }).startOf('year').toJSDate(), today.endOf('year').toJSDate()],
-                    }
-                }
-            }).on('selected', (date, calendarIdx) => {
-                table.draw();
-            });
-
-            /* clean input fecha inicio contrato */
-            const clean_input_fecha_cierre_ot = document.getElementById('clean_fecha_cierre_rango')
-            clean_input_fecha_cierre_ot.addEventListener('click', function () {
-                document.getElementById('fecha_cierre_rango').value = '';
-                table.draw();
-            })
-
-
-            /* Filtro Cliente */
-            const select_cliente = document.querySelector('#cliente-filter')
-            select_cliente.addEventListener('change', function (event) {
-                table.draw();
-            })
-
-            /* Filtro Condición */
-            const select_condicion = document.querySelector('#condicion-filter')
-            select_condicion.addEventListener('change', function (event) {
-                table.draw();
-            })
+            
         })
 </script>
 {% endblock js %}  

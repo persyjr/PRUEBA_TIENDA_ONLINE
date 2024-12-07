@@ -76,8 +76,6 @@ $(document).ready(function (){
                lengthChange: false,
                infoCallback: function( settings, start, end, max, total, pre, page ) {
                    num = end-start;
-                   console.log(num)
-                   console.log(total)
                    if (total == 0) return "Sin resultados";
                    return 'Mostrando '+ (num+1) + " de " + total + " resultados";
                },
@@ -137,7 +135,6 @@ $(document).ready(function (){
                            const urldelete = "{% url 'gestionVentas:delete_product_view' 0 %}".replace(0, data);
                            const urldetalle = "".replace(0, data);
                            const nombre = row['nombre']
-                           console.log(nombre)
                            const buttonDetalle = `
                                <a class="btn rounded-circle btn-icon btn-datatable btn-primary has-tooltip edit_btn text-white"
                                    data-toggle="modal" data-target="#js-modal-3" data-title="Editar datos de  ${nombre}"

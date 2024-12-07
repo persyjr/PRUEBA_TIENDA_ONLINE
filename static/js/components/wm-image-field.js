@@ -113,8 +113,7 @@ export class WmImageField extends LitElement {
         let img = document.getElementById(identidad).parentElement;
         if (event.target.checked== true){
             inputFile.prop('required',false); 
-            img.className="d-none"
-            console.log('quitando imagen')       
+            img.className="d-none"   
         }else{
             inputFile.prop('required',true);
             //img.className="d-flex justify-content-center"
@@ -139,12 +138,6 @@ export class WmImageField extends LitElement {
     mostrarImagen() {
         let file = this.fileInput.files[0];
         let reader = new FileReader();
-        
-        console.log(`this.fileInput`)
-        console.log(this.fileInput)
-        console.log(`e.target`)
-        //console.log(e.target)
-        console.log(this.name)
 
         let name2=this.name
         reader.onload = function(e,name=name2) {
@@ -152,17 +145,13 @@ export class WmImageField extends LitElement {
           let img = document.getElementById(identidad);
           img.parentElement.className="d-flex justify-content-center"
           img.src= e.target.result;
-          console.log(img)
-          console.log(identidad)
         }
         reader.readAsDataURL(file);
       }
     onFileChange(e) {
-        //console.log(e)
         const inputCurrent=$(`#na_id_${this.name}`).prop('checked', false);        
         const inputClear=$(`input[name="${this.name}-clear"]`).prop('checked', false);
-        this.ogFile = e.target.files[0];    
-        //console.log(this.ogFile)
+        this.ogFile = e.target.files[0];
         this.mostrarImagen()
     }
 
@@ -171,7 +160,6 @@ export class WmImageField extends LitElement {
         this.fileInput.accept = 'image/*';
         this.fileInput.capture = 'camera';
         this.fileInput.click();
-        console.log(this.fileInput)
         this.mostrarImagen()
     }
 

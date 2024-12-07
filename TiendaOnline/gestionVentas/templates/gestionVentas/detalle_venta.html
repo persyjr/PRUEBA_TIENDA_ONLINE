@@ -347,8 +347,6 @@ const canvas = document.getElementById('myChart');
 //INICIO JSPDF
 const { jsPDF } = window.jspdf;
 const doc = new jsPDF({compressPDF: true});
-//console.log('canvas')
-//console.log(canvas)
 if (canvas){
     const imgData = canvasaimagen(canvas)        
     doc.addImage(imgData, 'PNG', 10, 10, canvas.width / 4, canvas.height / 4); // Ajusta el tamaño según sea necesario
@@ -362,7 +360,6 @@ for (let i = textareas.length-1  ; i >= 0; i-- ){
   div.innerText=textareas[i].value
   textareas[i].setAttribute("class", "d-none");
   textareas[i].parentNode.appendChild(div);
-  console.log(div)
 }
 async function hacer_pdf(){
     doc.html(element,{
