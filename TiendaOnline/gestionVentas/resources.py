@@ -12,10 +12,10 @@ class ReporteVentasResource(resources.ModelResource):
     class Meta:
         model = m.Venta
         fields = [
-            'cliente',
-            'consecutivo',
-            'total_venta',
             'fecha_creacion',
+            'consecutivo',
+            'cliente',
+            'total_venta',
             'fecha_venta',
             ]
     
@@ -56,12 +56,12 @@ class ReporteProductosResource(resources.ModelResource):
     class Meta:
         model = m.Venta
         fields = [
-            'nombre',
+            'fecha_creacion',
             'codigo',
+            'nombre',
             'valor_venta',
             'tiene_iva',
             'porcentaje_iva',
-            'fecha_creacion',
             ]
     
     def dehydrate_nombre(self, obj):

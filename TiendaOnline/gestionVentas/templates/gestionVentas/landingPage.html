@@ -20,12 +20,14 @@
         font-family: 'Poppins', sans-serif;
     }
     :root{
-        --black:#333;
+        /*--black:#333;*/
+        --black:#1F1F38;
         --white:#fff;
     }
     .dark{
         --black:#fff;
-        --white:#333;
+        /*--white:#333;*/
+        --white:#1F1F38;
     }
     header{
         position: absolute;
@@ -109,7 +111,7 @@
         position: relative;
         z-index: 3;
         color: #fff;
-        font-size: 16vw;
+        font-size: 14vw;
         text-shadow: 0 20px 30px rgba(0,0,0,0.2);
     }
     .navigator{
@@ -214,10 +216,10 @@
     <ul class="navigator">
         <li><a href="#">Home</a></li>
         <li><a href="#">Sign In</a></li>
+        <li><a href="{% url 'gestionVentas:sales_list' %}">Admin Panel</a></li>
         <li><a href="#">About</a></li>
         <li><a href="#">Blog</a></li>
         <li><a href="#">Contact</a></li>
-        <li><a href="{% url 'gestionVentas:sales_list' %}">Admin Panel</a></li>
 
     </ul>
     <script>
