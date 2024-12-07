@@ -19,3 +19,5 @@ TiendaOnline/TiendaOnline/.env
 # Maven
 target/
 dist/
+
+__pycache__/
