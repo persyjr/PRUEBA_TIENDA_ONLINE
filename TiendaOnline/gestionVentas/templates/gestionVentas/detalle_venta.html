@@ -84,11 +84,18 @@
                         </div>
                         <div class=" d-flex justify-content-center">
                             <button class="btn btn-outline-primary text-white w-100" type="button" data-target="#js-modal-3" data-toggle="modal"
-                            data-action="Crear Cotizacion" data-title="Crear Cotización" data-width="modal-lg"
+                            data-action="Nuevo Item" data-title="Nuevo Item" data-width="modal-lg"
                             data-url="{% url 'gestionVentas:new_item_sale' object.id %}">
                             Agregar Productos
-                            </button>
-                        </div>
+                        </button>
+                    </div>
+                    <div class=" d-flex justify-content-center">
+                        <button class="btn btn-outline-primary text-white w-100" type="button" data-target="#js-modal-3" data-toggle="modal"
+                            data-action="Confirmar Venta" data-title="Confirmar Venta" data-width="modal-md"
+                            data-url="{% url 'gestionVentas:confirm_sale' object.id %}">
+                            Confirmar Venta
+                        </button>
+                    </div>
                         <div class=" d-flex justify-content-center">
                             <a class="btn btn-primary text-white w-100" style="border-radius: 0 0 20px 20px ;"  id="download-button">Download as PDF</a>   
                         </div>
@@ -164,7 +171,9 @@
                             </th>
                             <th class="p-0 d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >IMG 
                             </th>
-                            <th class="p-0 " style="width: 40%; font-size: 0.6rem; padding: 0rem;" >DESCRIPCIÓN 
+                            <th class="p-0 d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >QTY 
+                            </th>
+                            <th class="p-0 " style="width: 30%; font-size: 0.6rem; padding: 0rem;" >DESCRIPCIÓN 
                             </th>
                             <th class="p-0 d-flex justify-content-end" style="width: 20%; font-size: 0.6rem; padding: 0rem;" >IVA 
                             </th>
@@ -189,10 +198,21 @@
                                     data-width="modal-lg" data-placement="right"                                    
                                     data-url="{% url 'gestionVentas:delete_item_sale_view' item.id %}" title="Eliminar Item Venta"
                                         >
-                                    <img class="icono_product" style="height: 1rem; width: 1rem; border-radius: 50%;" src="{{item.producto.imagen.url}}" alt=""> 
+                                        <img class="icono_product" style="height: 1rem; width: 1rem; border-radius: 50%;" src="{{item.producto.imagen.url}}" alt=""> 
                                     </a>
                                 </td>
-                                <td class="p-0 " style="width: 40%; font-size: 0.6rem; padding: 0rem;" >
+                                <td class="p-0  d-flex justify-content-center" style="width: 10%; font-size: 0.6rem; padding: 0rem;" >
+                                    <a class="p-0 m-0  btn-datatable w-100 edit_btn "
+                                        data-toggle="modal" data-target="#js-modal-3" data-title="Editar Cantidad"
+                                        data-width="modal-lg" data-placement="right"                                    
+                                        data-url="{% url 'gestionVentas:update_item_venta' item.id %}" title="Editar Cantidad"
+                                            >
+                                        <span class="d-flex edit justify-content-center w-100 ">
+                                            {{item.cantidad}}
+                                        </span>
+                                    </a>
+                                </td>
+                                <td class="p-0 " style="width: 30%; font-size: 0.6rem; padding: 0rem;" >
                                     <span class="text-uppercase">{{item.producto.codigo}}</span>, <span class="">{{item.producto.nombre}}</span> 
                                 </td>
                                 <td class="p-0 d-flex justify-content-end" style="width: 20%; font-size: 0.6rem; padding: 0rem;" >

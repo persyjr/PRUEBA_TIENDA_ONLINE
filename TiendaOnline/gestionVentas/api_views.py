@@ -43,8 +43,8 @@ class InfoProductosAPIView(CspExemptMixin, generics.ListAPIView):
 
     def get_queryset(self, **kwargs):
         try:
-            repuestos = m.Producto.objects.all()
+            productos = m.Producto.objects.filter(cantidad__gt=0)
         except Exception as e:
             print(e)
-            repuestos = ''
-        return repuestos
+            productos = m.Producto.objects.none() 
+        return productos

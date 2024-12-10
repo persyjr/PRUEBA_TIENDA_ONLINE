@@ -12,6 +12,7 @@ class Producto(models.Model):
     porcentaje_iva = models.FloatField(blank=True, null=True)
     imagen = models.FileField(upload_to='gestionVentas/productos', blank=True,
                               null=True)
+    cantidad = models.IntegerField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

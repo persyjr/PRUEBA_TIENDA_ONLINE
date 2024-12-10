@@ -75,4 +75,14 @@ urlpatterns = [
     path(
         'product_report_excel/',
         views.ReporteProductosView.as_view(),
-        name='product_report_excel'),]
+        name='product_report_excel'),
+    path(
+        'update_item_vent/<pk>/',
+        views.ActualizarItemVenta.as_view(),
+        name='update_item_venta'),
+    path(
+        'confirm_sale/<pk>/',
+        views.ConfirmarVentaView.as_view(),
+        name='confirm_sale'),
+        ]
+

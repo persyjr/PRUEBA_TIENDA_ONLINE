@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+{% include "components/non_field_errors.html" %}
+<body class="bg-white">
+    <div class=" d-flex justify-content-center ">
+        <label for="fecha" class="font-weight-bold text-info h4 form-label">
+            <strong>
+                <div class=" pl-2 d-inline fw-bolder">¿ Deseas Confirmar esta Venta ?</div>
+            </strong>
+        </label>
+    </div>
+    <form class="bg-white" action="{% url 'gestionVentas:confirm_sale' object.id %}" method="POST" enctype="multipart/form-data" class="card card-body">{% csrf_token %} 
+        <select name="confirmacion" class="form-control text-info" id="" required>
+            <option value="yes">SI</option>
+            <option value="not">NO</option>
+        </select>
+        <button class="btn btn-outline-info w-100" type="submit">Confirmar</button>
+    </form> 
+</body>

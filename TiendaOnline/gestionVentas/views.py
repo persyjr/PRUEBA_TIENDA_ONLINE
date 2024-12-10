@@ -51,6 +51,7 @@ class RegistrarProductoView(generic.FormView):
     def form_valid(self, form):
         codigo = form.cleaned_data["codigo"]
         nombre = form.cleaned_data["nombre"]
+        cantidad = form.cleaned_data["cantidad"]
         valor_venta = form.cleaned_data["valor_venta"]
         tiene_iva = form.cleaned_data["tiene_iva"]
         if form.cleaned_data["imagen"] is not None:
@@ -66,6 +67,7 @@ class RegistrarProductoView(generic.FormView):
         producto = m.Producto.objects.create(
             codigo=codigo,
             nombre=nombre,
+            cantidad=cantidad,
             valor_venta=valor_venta,
             tiene_iva=tiene_iva,
             imagen=imagen,
@@ -101,6 +103,7 @@ class ActualizarProducto(generic.UpdateView):
     def form_valid(self, form):
         producto = self.get_object()
         producto.codigo = form.cleaned_data["codigo"]
+        producto.cantidad = form.cleaned_data["cantidad"]
         producto.nombre = form.cleaned_data["nombre"]
         producto.valor_venta = form.cleaned_data["valor_venta"]
         producto.tiene_iva = form.cleaned_data["tiene_iva"]
@@ -178,6 +181,7 @@ class RegistrarVentaView(generic.FormView):
         listaids = self.obtenerids(productos)
         for numid in listaids:
             item_venta = m.ItemVenta.objects.create(
+                cantidad=1,
                 producto_id=numid,
                 venta_id=venta.id,)
         item_venta.save()
@@ -215,12 +219,13 @@ class DetalleVentaView(generic.UpdateView):
     def get_items_cotizacion(self,):
         items = m.ItemVenta.objects.filter(venta=self.get_object())
         for item in items:
+            cantidad = item.cantidad
             if item.producto.tiene_iva:
                 porcentaje_iva = (item.producto.porcentaje_iva / 100)
-                item.iva = float(item.producto.valor_venta)*porcentaje_iva
+                item.iva = float(item.producto.valor_venta)*porcentaje_iva*cantidad
             else:
                 item.iva = 0.0
-            item.valor = item.iva+float(item.producto.valor_venta)
+            item.valor = item.iva+float(item.producto.valor_venta)*cantidad
             item.save()
         return items
 
@@ -321,6 +326,7 @@ class CrearItemVenta(generic.FormView):
         listaids = self.obtenerids(productos)
         for numid in listaids:
             item_venta = m.ItemVenta.objects.create(
+                cantidad=1,
                 producto_id=numid,
                 venta_id=venta_id,)
         item_venta.save()
@@ -337,6 +343,48 @@ class CrearItemVenta(generic.FormView):
     def post(self, request: HttpRequest, *args: str,
              **kwargs: Any) -> HttpResponse:
         form = self.form_class(request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class ActualizarItemVenta(generic.UpdateView):
+    template_name = 'components/form_update_sale_item.html'
+    model = m.ItemVenta
+    form_class = f.NuevoItemVeta
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+        })
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        itemVenta = self.get_object()
+        cantidad = form.cleaned_data["cantidad"]
+        itemVenta.cantidad = cantidad
+        if itemVenta.producto.tiene_iva:
+            itemVenta.iva = float(cantidad)*float(itemVenta.producto.porcentaje_iva)*float(itemVenta.producto.valor_venta)
+            
+            itemVenta.valor = float(itemVenta.iva) + (float(cantidad) *float(itemVenta.producto.valor_venta))
+        else:
+            itemVenta.valor = float(cantidad) * float(itemVenta.producto.valor_venta)
+        itemVenta.save()
+        print(itemVenta.cantidad)
+        print(itemVenta.iva)
+        print(itemVenta.valor)
+
+        return HttpResponseRedirect(reverse_lazy(
+            'gestionVentas:sale_detail',
+            kwargs={'pk': itemVenta.venta.id}))
+
+    def form_invalid(self, form):
+        return JsonResponse({'status': 'error', 'errors': form.errors},
+                            status=400)
+
+    def post(self, request: HttpRequest, *args: str,
+             **kwargs: Any) -> HttpResponse:
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -393,3 +441,33 @@ class ReporteProductosView(generic.View):
         response = HttpResponse(data.export('xlsx'), content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = 'attachment; filename=reporte_productos.xlsx'
         return response
+
+
+class ConfirmarVentaView(generic.UpdateView):
+    # permission_required = 'mantenimiento.can_ver_solicitudes'
+    template_name = 'components/form_confirm_sale.html'
+    model = m.Venta
+    form_class = f.ActualizarDatosVentaForm
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+        })
+        return super().get_context_data(**kwargs)
+    
+    def Actualizar_inventario(self,):
+        items = m.ItemVenta.objects.filter(venta=self.get_object())
+        for item in items:
+            cantidad = item.cantidad
+            item.producto.cantidad=item.producto.cantidad-cantidad
+            item.producto.save()
+
+    def post(self, request: HttpRequest, *args: str,
+             **kwargs: Any) -> HttpResponse:
+        confirmacion=request.POST['confirmacion']
+        # print(confirmacion)
+        if confirmacion == 'yes':
+            self.Actualizar_inventario()
+
+        return HttpResponseRedirect(reverse_lazy(
+            'gestionVentas:sale_detail',
+            kwargs={'pk': self.get_object().id}))

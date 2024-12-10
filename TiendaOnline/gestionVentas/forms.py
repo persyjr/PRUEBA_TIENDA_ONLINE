@@ -35,7 +35,7 @@ class RegistrarProductoForm(forms.ModelForm):
     class Meta:
         model = m.Producto
         fields = ['nombre', 'codigo', 'valor_venta', 'tiene_iva',
-                  'porcentaje_iva', 'imagen']
+                  'porcentaje_iva', 'imagen', 'cantidad']
 
         widgets = {
                 'tiene_iva': forms.CheckboxInput({'style': 'height: 0.9rem;'}),
@@ -63,6 +63,7 @@ class RegistrarProductoForm(forms.ModelForm):
         self.fields['tiene_iva'].label = '¿Tiene iva?'
         self.fields['nombre'].required = True
         self.fields['codigo'].required = True
+        self.fields['cantidad'].required = True
         self.fields['valor_venta'].required = True
         self.fields['nombre'].widget.attrs.update(
             {"class": "text-info",
@@ -75,6 +76,9 @@ class RegistrarProductoForm(forms.ModelForm):
              "placeholder": 'Ingresa el valor de la venta'})
         self.fields['tiene_iva'].widget.attrs.update(
             {"class": "text-info"})
+        self.fields['cantidad'].widget.attrs.update(
+            {"class": "text-info",
+             "placeholder": 'Ingresa la cantidad'})
         self.fields['porcentaje_iva'].widget.attrs.update(
             {"class": "text-info",
              "placeholder": 'Ingresa el % de iva'})
@@ -136,3 +140,18 @@ class NuevoItemVeta(forms.ModelForm):
         fields = [
             'cantidad',
             ]
+        widgets = {
+                'cantidad': forms.NumberInput(attrs={
+                    'min': '0',
+                    'max': '100', #m.ItemVenta.producto.cantidad
+                    'class': 'form-control'
+                }),}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+         # Asegúrate de que self.instance está definido
+        if self.instance and self.instance.producto:
+            max_cantidad = self.instance.producto.cantidad  # Obtén la cantidad del producto
+            self.fields['cantidad'].widget.attrs.update({
+                'max': max_cantidad,  # Actualiza el atributo 'max' dinámicamente
+                "class": "text-info"
+            })

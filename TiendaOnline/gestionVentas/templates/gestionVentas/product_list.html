@@ -28,8 +28,9 @@
             <th class="text-center"><input type="checkbox" class="selectAll" name="selectAll" value="all"></th>
             <th>Nombre</th>
             <th>Código</th>
+            <th>Cantidad</th>
             <th>Precio Venta</th>
-            <th>Precio Venta</th>
+            <th>Precio Con IVA</th>
             <th>Iva</th>
             <th>Imagen</th>
             <th>Acciones</th>
@@ -40,8 +41,9 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>Código</th>
+            <th>Cantidad</th>
             <th>Precio Venta</th>
-            <th>Precio Venta</th>
+            <th>Precio Con IVA</th>
             <th>Iva</th>
             <th>Imagen</th>
             <th style="width: 200px;">Acciones</th>
@@ -103,19 +105,40 @@ $(document).ready(function (){
                    },
                    { data: 'nombre' },
                    { data: 'codigo' },
-                   { data: 'valor_venta',
-                       render: function(data, type, row, meta) {
-                           const precio = "$ 0 COP".replace(0, data);
-                           const buttonDetalle = `<p class="p-0 m-0 text-end ">${precio}<p>`
-                           return`${buttonDetalle}`;
+                   { data: 'cantidad',                    
+                    render: function(data, type, row, meta) {
+                        console.log(data)
+                        const cantidad = "0".replace(0, data);
+                        let buttonDetalle = `<p class="p-0 m-0 text-success text-center ">${cantidad}<p>`
+                        if(data <= 5){
+                            let buttonDetalle = `<p class="p-0 m-0 text-danger text-center ">${cantidad} <i class='fas fa-exclamation-triangle' style='font-size:24px;color:red'></i><p>`
+                            return`${buttonDetalle}`;
+                        }
+                    return`${buttonDetalle}`;
                        } },
                    { data: 'valor_venta',
                        render: function(data, type, row, meta) {
                            const precio = "$ 0 COP".replace(0, data);
                            const buttonDetalle = `${precio}`
                            return`${buttonDetalle}`;
+                       } 
+                    },
+                   { data: 'subtotal',
+                       render: function(data, type, row, meta) {
+                           const precio = "$ 0 COP".replace(0, data);
+                           const buttonDetalle = `<p class="p-0 m-0 text-end ">${precio}<p>`
+                           return`${buttonDetalle}`;
                        } },
-                   { data: 'porcentaje_iva' },
+                   { data: 'porcentaje_iva',
+                       render: function(data, type, row, meta) {
+                           const porcentaje_iva = "0 %".replace(0, data);
+                           const buttonDetalle = `<p class="p-0 m-0 text-end ">${porcentaje_iva}<p>`
+                           
+                           return`
+                               ${buttonDetalle}
+                           `;
+                       }
+                    },
                    {
                        data: 'imagen',
                        render: function(data, type, row, meta) {

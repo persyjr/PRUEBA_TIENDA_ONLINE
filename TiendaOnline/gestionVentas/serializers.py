@@ -23,23 +23,32 @@ class ListVentasSerializer(serializers.ModelSerializer):
 
 
 class ListProductosSerializer(serializers.ModelSerializer):
-
+    subtotal = serializers.SerializerMethodField()
     class Meta:
         model = m.Producto
         fields = (
             'id',
             'nombre',
             'codigo',
+            'cantidad',
             'valor_venta',
             'tiene_iva',
             'porcentaje_iva',
             'imagen',
             'fecha_creacion',
+            'subtotal',
         )
 
     def get_cliente(self, obj):
         if obj.cliente:
             return (str(obj.cliente.nombre))
+    
+    def get_subtotal(self, obj):
+        if obj.tiene_iva and obj.valor_venta:
+            subtotal = float(obj.valor_venta)+(float(obj.valor_venta)* obj.porcentaje_iva/100)
+            return (str(subtotal))
+        else:
+            return (str(obj.valor_venta))
 
 
 class FilterProductosSerializer(serializers.ModelSerializer):
