@@ -19,26 +19,26 @@
     <div class="card-body text-white">       
         <span id="selected-rows"></span>
         <div class="table-responsive px-2">
-        <table id="otsTable" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
+        <table id="Table" class="table table-striped nowrap display table"  cellspacing="0" width="100%">
         <thead class="thead-light">
           <tr>
             <th class="text-center"><input type="checkbox" class="selectAll" name="selectAll" value="all"></th>
+            <th>Nombre de usuario</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
             <th>Estado</th>
-            <th>Consecutivo</th>
-            <th>Fecha Creación</th>
-            <th>Cliente</th>
-            <th>Sitio</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tfoot class="thead-light">
           <tr>
             <th>ID</th>
+            <th>Nombre de usuario</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
             <th>Estado</th>
-            <th>Consecutivo</th>
-            <th>Fecha Creación</th>
-            <th>Cliente</th>
-            <th>Sitio</th>
             <th style="width: 200px;">Acciones</th>
           </tr>
         </tfoot>
@@ -72,7 +72,7 @@ $(document).ready(function (){
             })
         
            let toolname = null;
-           const table = $('#otsTable').DataTable({
+           const table = $('#Table').DataTable({
                rowId: 'id',
                //responsive: true,
                ordering: false,
@@ -96,79 +96,71 @@ $(document).ready(function (){
                    "infoEmpty":      "Mostrando 0 to 0 of 0 resultados",
                },
                ajax: {
-                   url: '#',
+                   url: '{% url "abm:listar_users_api" %}',
                    data : function(d){
-                       
-                       const elem = document.getElementById('cliente-filter');
-                       if (elem.value) {
-                           d.cliente = elem.value;
-                       }
-                       
-                       const elem2 = document.getElementById('condicion-filter');
-                       if (elem2.value) {
-                           d.condicion = elem2.value;
-                       }
-                       
-                        const fecha_creacion = document.getElementById('fecha_creacion_rango')
-                        if ( fecha_creacion.value ) {
-                                d.fecha_creacion = fecha_creacion.value
-                        }
-
-                        const fecha_cierre = document.getElementById('fecha_cierre_rango')
-                        if ( fecha_cierre.value ) {
-                                d.fecha_cierre = fecha_cierre.value
-                        }
                             
                    },
                },
                columns: [
-                   { data: 'id',
-                       orderable: false,
-                       className: 'select-checkbox',
-                       
-                   },
-                   { data: 'estado' },
-                   {data: 'consecutivo' },
-                   { data: 'fecha_creacion' },
-                   { data: 'cliente' },
-                   { data: 'sitio' },
-                   {
-                       data: 'id',
-                       
-                       render: function(data, type, row, meta) {
-                           const urlEditTool = "".replace(0, data);
-                           const deleteTool = "".replace(0, data);
-                           const detalleTool = "".replace(0, data);
-                           const nombre = row['nombre']
-                           const buttonDetalleUsuario = `
-                           {% if perms.mantenimiento.can_editar_orden_trabajo %}
-                               <a class="btn rounded-circle btn-icon btn-datatable btn-primary has-tooltip edit_btn text-white"
-                                   data-toggle="modal" data-target="#js-modal-3" data-title="Editar herramienta '${nombre}'"
-                                   data-width="modal-lg" data-placement="right"
-                                   data-url="${urlEditTool}" title="Editar Herramienta">
-                                   <i class="fas fa-pen"></i>
-                               </a>
-                               {% endif %}
-                               <a class="btn rounded-circle btn-icon btn-datatable btn-success has-tooltip edit_btn text-white"
-                                    href="${detalleTool}" "
-                                   ">
-                                   <i class="fas fa-eye"></i>
-                               </a>
-                               {% if perms.mantenimiento.can_editar_orden_trabajo %}
-                               <a class="btn rounded-circle btn-icon btn-datatable btn-danger has-tooltip edit_btn text-white"
-                                   data-toggle="modal" data-target="#js-modal-3" data-title="Eliminar Herramienta '${nombre}'"
-                                   data-width="modal-md" data-placement="right"
-                                   data-url="${deleteTool}" title="Eliminar Herramienta">
-                                   <i class="fas fa-trash"></i>
-                               </a>
-                               {% endif %}
-                           `
-                           return`
-                               ${buttonDetalleUsuario}
-                           `;
-                       }
-                   }
-               ],
+                    { data: 'id' },
+                    { data: 'username' },
+                    {
+                        data: 'first_name',
+                        render: function (data, type, row, meta) {
+                            const words = data.split(' ');
+                            const firstName = words.map(function (word) {
+                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            }).join(' ');
+                    
+                            return firstName;
+                        }
+                    },
+                    {
+                        data: 'last_name',
+                        render: function (data, type, row, meta) {
+                            const words = data.split(' ');
+                            const lastName = words.map(function (word) {
+                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            }).join(' ');
+                    
+                            return lastName;
+                        }
+                    },
+                    { data: 'email'},
+                    { 
+                        data: 'is_active',
+                        render: function(data, type, row, meta) {
+                            if (data == false) return`
+                                <span class="text-warning">
+                                    <i class="fas fa-minus"></i>
+                                </span>  
+                            `;
+                            return`
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>  
+                            `
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function(data, type, row, meta) {
+                            const urlDetalleUsuario = "".replace(0, data);
+                            const username = row['username']
+                            const buttonDetalleUsuario = `
+                                <a class="btn btn-icon btn-datatable btn-transparent-dark has-tooltip edit_btn"
+                                    data-toggle="modal" data-target="#js-modal-3" data-title="Detalle del usuario '${username}'"
+                                    data-width="60rem" data-placement="right"
+                                    data-url="${urlDetalleUsuario}" title="Ver usuario">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            `
+                            return`
+                                ${buttonDetalleUsuario}
+                            `;
+                        }
+                    }
+                ],
                select: {
                    info: false,
                    style: 'multi',

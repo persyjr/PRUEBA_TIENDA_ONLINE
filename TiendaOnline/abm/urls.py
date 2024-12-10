@@ -28,4 +28,7 @@ urlpatterns = [
         'delete_customer/<pk>/',
         views.EliminarClienteView.as_view(),
         name='delete_customer_view'),
+    path('api/users/',
+        api_views.ListarUsersAPIView.as_view(),
+        name='listar_users_api'),
 ]
