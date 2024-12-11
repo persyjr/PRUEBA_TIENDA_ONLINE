@@ -21,3 +21,5 @@ target/
 dist/
 
 __pycache__/
+TiendaOnline/abm/__pycache__/
+TiendaOnline/gestionVentas/__pycache__/
